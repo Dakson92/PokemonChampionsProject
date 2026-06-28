@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pokémon Champions Project</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.7.0/dist/tabler-icons.min.css">
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+
+<!-- BARRA TÍTULO -->
+<div class="barra-titulo">
+  <div class="barra-titulo__izquierda">
+    <div class="pokeball-mini"></div>
+    <span>Pokémon Champions Project</span>
+  </div>
+  <div class="barra-titulo__controles">
+    <button class="ctrl-btn" id="btnModoOscuro" title="Cambiar tema"><i class="ti ti-moon"></i></button>
+    <button class="ctrl-btn" title="Pantalla completa" onclick="document.documentElement.requestFullscreen()"><i class="ti ti-maximize"></i></button>
+    <button class="ctrl-btn" title="Ayuda"><i class="ti ti-question-mark"></i></button>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <nav class="sidebar__nav">
+      <a class="nav-item activo" data-vista="inicio" onclick="navegarA('inicio')">
+        <i class="ti ti-home"></i><span>Inicio</span>
+      </a>
+      <a class="nav-item" data-vista="equipo" onclick="navegarA('equipo')">
+        <i class="ti ti-sword"></i><span>Constructor de Equipo</span>
+      </a>
+      <a class="nav-item" data-vista="cobertura" onclick="navegarA('cobertura')">
+        <i class="ti ti-target"></i><span>Analizador de Cobertura</span>
+      </a>
+      <a class="nav-item" data-vista="matriz" onclick="navegarA('matriz')">
+        <i class="ti ti-shield-half"></i><span>Matriz de Debilidades</span>
+      </a>
+      <a class="nav-item" data-vista="analizador" onclick="navegarA('analizador')">
+        <i class="ti ti-chart-bar"></i><span>Analizador de Batalla</span>
+      </a>
+      <a class="nav-item" data-vista="pokedex" onclick="navegarA('pokedex')">
+        <i class="ti ti-pokeball"></i><span>Pokédex</span>
+      </a>
+      <a class="nav-item" data-vista="calculadora" onclick="navegarA('calculadora')">
+        <i class="ti ti-bolt"></i><span>Calculadora de Daño</span>
+      </a>
+      <a class="nav-item" data-vista="configuracion" onclick="navegarA('configuracion')">
+        <i class="ti ti-settings"></i><span>Configuración</span>
+      </a>
+    </nav>
+
+    <div class="sidebar__autor">
+      <div class="autor-logo">
+        <div class="autor-logo__circulo"><i class="ti ti-pokeball"></i></div>
+      </div>
+      <div class="autor-info">
+        <div class="autor-info__by">Desarrollado por</div>
+        <div class="autor-info__nombre">Dakson Gutiérrez</div>
+        <div class="autor-info__rol">Abogado<br>Magíster en Derecho Digital<br>y Tecnológico<br>Especialista en Derecho Procesal</div>
+      </div>
+      <div class="autor-estado">
+        <div class="estado-dot"></div>
+        <span>v1.0.0 &nbsp;·&nbsp; Conectado</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- CONTENIDO -->
+  <main class="contenido-principal">
+
+    <!-- ══ INICIO ══ -->
+    <section class="vista activa" id="vista-inicio">
+      <div class="hero">
+        <div class="hero__sprites">
+          <img class="hero__sprite hero__sprite--izq"
+               src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/6.png"
+               alt="Charizard" onerror="this.style.display='none'">
+          <img class="hero__sprite hero__sprite--der"
+               src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/448.png"
+               alt="Lucario" onerror="this.style.display='none'">
+        </div>
+        <div class="hero__centro">
+          <div class="hero__pokeball-icon"><div class="pokeball-grande"></div></div>
+          <h1 class="hero__titulo">
+            <span class="hero__titulo--blanco">POKÉMON</span>
+            <span class="hero__titulo--dorado">CHAMPIONS</span>
+            <span class="hero__titulo--azul">PROJECT</span>
+          </h1>
+          <p class="hero__slogan">Tu ventaja táctica. Tu victoria inevitable.</p>
+        </div>
+      </div>
+
+      <div class="modulos-grid modulos-grid--3">
+        <div class="modulo-card modulo-card--rojo" onclick="navegarA('equipo')">
+          <div class="modulo-card__icono"><i class="ti ti-sword"></i></div>
+          <div class="modulo-card__info"><h3>CONSTRUCTOR DE EQUIPO</h3><p>Crea y gestiona tu equipo competitivo.</p></div>
+          <button class="modulo-card__btn">ABRIR <i class="ti ti-chevron-right"></i></button>
+        </div>
+        <div class="modulo-card modulo-card--azul" onclick="navegarA('cobertura')">
+          <div class="modulo-card__icono"><i class="ti ti-target"></i></div>
+          <div class="modulo-card__info"><h3>ANALIZADOR DE COBERTURA</h3><p>Analiza la cobertura ofensiva y defensiva.</p></div>
+          <button class="modulo-card__btn">ABRIR <i class="ti ti-chevron-right"></i></button>
+        </div>
+        <div class="modulo-card modulo-card--verde" onclick="navegarA('matriz')">
+          <div class="modulo-card__icono"><i class="ti ti-shield-half"></i></div>
+          <div class="modulo-card__info"><h3>MATRIZ DE DEBILIDADES</h3><p>Visualiza debilidades y resistencias de tu equipo.</p></div>
+          <button class="modulo-card__btn">ABRIR <i class="ti ti-chevron-right"></i></button>
+        </div>
+      </div>
+
+      <div class="modulos-grid modulos-grid--4">
+        <div class="modulo-card modulo-card--morado" onclick="navegarA('analizador')">
+          <div class="modulo-card__icono"><i class="ti ti-chart-bar"></i></div>
+          <div class="modulo-card__info"><h3>ANALIZADOR DE BATALLA</h3><p>Analiza enfrentamientos y obtén estrategias.</p></div>
+          <button class="modulo-card__btn">ABRIR <i class="ti ti-chevron-right"></i></button>
+        </div>
+        <div class="modulo-card modulo-card--dorado" onclick="navegarA('pokedex')">
+          <div class="modulo-card__icono"><i class="ti ti-pokeball"></i></div>
+          <div class="modulo-card__info"><h3>POKÉDEX</h3><p>Explora información completa de todos los Pokémon.</p></div>
+          <button class="modulo-card__btn">ABRIR <i class="ti ti-chevron-right"></i></button>
+        </div>
+        <div class="modulo-card modulo-card--cian" onclick="navegarA('calculadora')">
+          <div class="modulo-card__icono"><i class="ti ti-bolt"></i></div>
+          <div class="modulo-card__info"><h3>CALCULADORA DE DAÑO</h3><p>Calcula el daño de tus ataques con precisión.</p></div>
+          <button class="modulo-card__btn">ABRIR <i class="ti ti-chevron-right"></i></button>
+        </div>
+        <div class="modulo-card modulo-card--rosa" onclick="navegarA('configuracion')">
+          <div class="modulo-card__icono"><i class="ti ti-settings"></i></div>
+          <div class="modulo-card__info"><h3>CONFIGURACIÓN</h3><p>Personaliza la aplicación a tu gusto.</p></div>
+          <button class="modulo-card__btn">ABRIR <i class="ti ti-chevron-right"></i></button>
+        </div>
+      </div>
+
+      <div class="panel-inferior">
+        <div class="panel-stats">
+          <h4 class="panel-titulo">ESTADÍSTICAS RÁPIDAS</h4>
+          <div class="stat-item"><span class="stat-item__icono">🎯</span><span class="stat-item__label">Pokémon</span><span class="stat-item__valor">1,025</span></div>
+          <div class="stat-item"><span class="stat-item__icono">⚡</span><span class="stat-item__label">Movimientos</span><span class="stat-item__valor">919</span></div>
+          <div class="stat-item"><span class="stat-item__icono">✨</span><span class="stat-item__label">Habilidades</span><span class="stat-item__valor">307</span></div>
+          <div class="stat-item"><span class="stat-item__icono">🎒</span><span class="stat-item__label">Objetos</span><span class="stat-item__valor">959</span></div>
+        </div>
+        <div class="panel-equipo">
+          <div class="panel-equipo__header">
+            <h4 class="panel-titulo">ÚLTIMO EQUIPO</h4>
+            <button class="btn-link" onclick="navegarA('equipo')">Ver completo</button>
+          </div>
+          <div class="equipo-slots" id="ultimoEquipo">
+            <div class="equipo-slot vacio"><i class="ti ti-plus"></i></div>
+            <div class="equipo-slot vacio"><i class="ti ti-plus"></i></div>
+            <div class="equipo-slot vacio"><i class="ti ti-plus"></i></div>
+            <div class="equipo-slot vacio"><i class="ti ti-plus"></i></div>
+            <div class="equipo-slot vacio"><i class="ti ti-plus"></i></div>
+            <div class="equipo-slot vacio"><i class="ti ti-plus"></i></div>
+          </div>
+        </div>
+        <div class="panel-noticias">
+          <h4 class="panel-titulo">NOTICIAS Y ACTUALIZACIONES</h4>
+          <div class="noticia-item">
+            <div class="noticia-item__punto"></div>
+            <div><p class="noticia-item__titulo">Pokédex completamente funcional</p><p class="noticia-item__fecha">Versión 1.0.0</p></div>
+          </div>
+          <div class="noticia-item">
+            <div class="noticia-item__punto"></div>
+            <div><p class="noticia-item__titulo">Constructor de Equipo disponible</p><p class="noticia-item__fecha">Próximamente</p></div>
+          </div>
+          <div class="noticia-item">
+            <div class="noticia-item__punto noticia-item__punto--gris"></div>
+            <div><p class="noticia-item__titulo">Analizador de Batalla con IA</p><p class="noticia-item__fecha">En desarrollo</p></div>
+          </div>
+          <button class="btn-link" style="margin-top:8px">Ver todas →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ POKÉDEX ══ -->
+    <section class="vista" id="vista-pokedex">
+      <div class="vista-header">
+        <div>
+          <h2 class="vista-header__titulo"><i class="ti ti-pokeball"></i> Pokédex</h2>
+          <p class="vista-header__sub">Explora los 1,025 Pokémon con información completa</p>
+        </div>
+        <div class="vista-header__acciones">
+          <div class="buscador">
+            <i class="ti ti-search"></i>
+            <input type="text" id="inputBusqueda" placeholder="Buscar Pokémon..." oninput="buscarPokemon(this.value)">
+          </div>
+          <select class="select-filtro" id="filtroGeneracion" onchange="filtrarPorGeneracion(this.value)">
+            <option value="">Todas las generaciones</option>
+            <option value="1">Generación I (1–151)</option>
+            <option value="2">Generación II (152–251)</option>
+            <option value="3">Generación III (252–386)</option>
+            <option value="4">Generación IV (387–493)</option>
+            <option value="5">Generación V (494–649)</option>
+            <option value="6">Generación VI (650–721)</option>
+            <option value="7">Generación VII (722–809)</option>
+            <option value="8">Generación VIII (810–905)</option>
+            <option value="9">Generación IX (906–1025)</option>
+          </select>
+          <select class="select-filtro" id="filtroTipo" onchange="filtrarPorTipo(this.value)">
+            <option value="">Todos los tipos</option>
+            <option value="fire">Fuego</option>
+            <option value="water">Agua</option>
+            <option value="grass">Planta</option>
+            <option value="electric">Eléctrico</option>
+            <option value="ice">Hielo</option>
+            <option value="fighting">Lucha</option>
+            <option value="poison">Veneno</option>
+            <option value="ground">Tierra</option>
+            <option value="flying">Volador</option>
+            <option value="psychic">Psíquico</option>
+            <option value="bug">Bicho</option>
+            <option value="rock">Roca</option>
+            <option value="ghost">Fantasma</option>
+            <option value="dragon">Dragón</option>
+            <option value="dark">Siniestro</option>
+            <option value="steel">Acero</option>
+            <option value="fairy">Hada</option>
+            <option value="normal">Normal</option>
+          </select>
+        </div>
+      </div>
+      <div class="pokedex-layout">
+        <div class="pokemon-grid" id="pokemonGrid">
+          <div class="cargando"><div class="pokeball-spin"></div><p>Cargando Pokémon...</p></div>
+        </div>
+        <div class="pokemon-detalle" id="pokemonDetalle">
+          <div class="detalle-vacio">
+            <div class="pokeball-grande pokeball-grande--dim"></div>
+            <p>Selecciona un Pokémon<br>para ver sus detalles</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ CONSTRUCTOR DE EQUIPO ══ -->
+    <section class="vista" id="vista-equipo">
+      <div class="vista-header">
+        <div>
+          <h2 class="vista-header__titulo"><i class="ti ti-sword"></i> Constructor de Equipo</h2>
+          <p class="vista-header__sub">Selecciona hasta 6 Pokémon para tu equipo competitivo</p>
+        </div>
+        <div class="vista-header__acciones">
+          <button class="btn-accion btn-accion--secundario" onclick="limpiarEquipo()">
+            <i class="ti ti-trash"></i> Limpiar
+          </button>
+          <button class="btn-accion btn-accion--primario" onclick="guardarEquipo()">
+            <i class="ti ti-device-floppy"></i> Guardar equipo
+          </button>
+        </div>
+      </div>
+      <div class="equipo-layout">
+        <div class="equipo-panel-izq">
+          <div class="equipo-titulo">
+            <span>MI EQUIPO</span>
+            <span class="equipo-contador" id="equipoContador">0 / 6</span>
+          </div>
+          <div class="equipo-slots-grid" id="equipoSlotsGrid"></div>
+          <div class="equipo-resumen">
+            <div class="equipo-resumen__titulo">TIPOS EN EL EQUIPO</div>
+            <div class="equipo-resumen__tipos" id="equipoTiposResumen">
+              <span class="resumen-vacio">Sin Pokémon seleccionados</span>
+            </div>
+          </div>
+          <div class="equipo-alertas" id="equipoAlertas"></div>
+        </div>
+        <div class="equipo-panel-der">
+          <div class="equipo-titulo">AGREGAR POKÉMON</div>
+          <div class="equipo-buscador-wrap">
+            <div class="buscador">
+              <i class="ti ti-search"></i>
+              <input type="text" id="equipoBusqueda" placeholder="Buscar por nombre o número..." oninput="buscarParaEquipo(this.value)">
+            </div>
+            <select class="select-filtro" onchange="filtrarEquipoPorGen(this.value)">
+              <option value="">Todas las gen.</option>
+              <option value="1">Gen I</option><option value="2">Gen II</option>
+              <option value="3">Gen III</option><option value="4">Gen IV</option>
+              <option value="5">Gen V</option><option value="6">Gen VI</option>
+              <option value="7">Gen VII</option><option value="8">Gen VIII</option>
+              <option value="9">Gen IX</option>
+            </select>
+          </div>
+          <div class="equipo-selector-grid" id="equipoSelectorGrid">
+            <div class="cargando">
+              <div class="pokeball-spin"></div>
+              <p>Carga la Pokédex primero para buscar Pokémon</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="vista" id="vista-cobertura">
+      <div class="vista-header"><div><h2 class="vista-header__titulo"><i class="ti ti-target"></i> Analizador de Cobertura</h2><p class="vista-header__sub">Analiza la cobertura ofensiva y defensiva de tu equipo</p></div></div>
+      <div class="proximamente"><i class="ti ti-target" style="font-size:48px;color:#0891b2;opacity:.5"></i><h3>En desarrollo</h3><p>El Analizador de Cobertura estará disponible próximamente.</p></div>
+    </section>
+    <!-- ══ MATRIZ DE DEBILIDADES ══ -->
+    <section class="vista" id="vista-matriz">
+      <div class="vista-header">
+        <div>
+          <h2 class="vista-header__titulo"><i class="ti ti-shield-half"></i> Matriz de Debilidades</h2>
+          <p class="vista-header__sub">Vulnerabilidades y resistencias de tu equipo frente a todos los tipos</p>
+        </div>
+        <div class="vista-header__acciones">
+          <button class="btn-accion btn-accion--secundario" onclick="navegarA('equipo')">
+            <i class="ti ti-sword"></i> Editar equipo
+          </button>
+        </div>
+      </div>
+
+      <!-- Sin equipo -->
+      <div class="matriz-sin-equipo" id="matrizSinEquipo">
+        <i class="ti ti-shield-half" style="font-size:48px;color:#16a34a;opacity:.4"></i>
+        <h3>Sin equipo configurado</h3>
+        <p>Ve al <strong>Constructor de Equipo</strong> y selecciona al menos un Pokémon para ver la matriz.</p>
+        <button class="btn-accion btn-accion--primario" onclick="navegarA('equipo')">
+          <i class="ti ti-sword"></i> Ir al Constructor
+        </button>
+      </div>
+
+      <!-- Matriz principal -->
+      <div class="matriz-contenido" id="matrizContenido" style="display:none">
+
+        <!-- Resumen visual del equipo -->
+        <div class="matriz-equipo-header" id="matrizEquipoHeader"></div>
+
+        <!-- Leyenda -->
+        <div class="matriz-leyenda">
+          <div class="leyenda-item"><span class="leyenda-celda leyenda-x4">×4</span> Extremadamente débil</div>
+          <div class="leyenda-item"><span class="leyenda-celda leyenda-x2">×2</span> Débil</div>
+          <div class="leyenda-item"><span class="leyenda-celda leyenda-x1">×1</span> Normal</div>
+          <div class="leyenda-item"><span class="leyenda-celda leyenda-x05">½</span> Resistente</div>
+          <div class="leyenda-item"><span class="leyenda-celda leyenda-x025">¼</span> Muy resistente</div>
+          <div class="leyenda-item"><span class="leyenda-celda leyenda-x0">✕</span> Inmune</div>
+        </div>
+
+        <!-- Tabla de la matriz -->
+        <div class="matriz-scroll">
+          <table class="matriz-tabla" id="matrizTabla"></table>
+        </div>
+
+        <!-- Resumen de vulnerabilidades -->
+        <div class="matriz-resumen-grid" id="matrizResumenGrid"></div>
+
+      </div>
+    </section>
+    <!-- ══ ANALIZADOR DE BATALLA ══ -->
+    <section class="vista" id="vista-analizador">
+      <div class="vista-header">
+        <div>
+          <h2 class="vista-header__titulo"><i class="ti ti-chart-bar"></i> Analizador de Batalla</h2>
+          <p class="vista-header__sub">Comparación táctica cabeza a cabeza entre dos Pokémon</p>
+        </div>
+        <div class="vista-header__acciones">
+          <button class="btn-accion btn-accion--secundario" onclick="limpiarAnalizador()">
+            <i class="ti ti-refresh"></i> Limpiar
+          </button>
+          <button class="btn-accion btn-accion--primario" onclick="analizarBatalla()">
+            <i class="ti ti-chart-bar"></i> Analizar
+          </button>
+        </div>
+      </div>
+
+      <div class="anl-layout">
+
+        <!-- ── SELECTOR POKÉMON A ── -->
+        <div class="anl-selector anl-selector--a">
+          <div class="anl-selector__titulo">
+            <i class="ti ti-sword" style="color:#f97316"></i> POKÉMON A
+          </div>
+          <div class="calc-buscador-wrap">
+            <div class="buscador">
+              <i class="ti ti-search"></i>
+              <input type="text" id="anlAInput" placeholder="Buscar Pokémon..." oninput="anlBuscar(this.value,'a')" autocomplete="off">
+            </div>
+            <div class="calc-sugerencias" id="anlASugerencias"></div>
+          </div>
+          <div class="anl-pokemon-preview" id="anlAPreview">
+            <div class="calc-pokemon-vacio"><i class="ti ti-pokeball"></i><span>Selecciona un Pokémon</span></div>
+          </div>
+          <!-- Config rápida A -->
+          <div class="anl-config" id="anlAConfig" style="display:none">
+            <div class="anl-config__fila">
+              <label>Nivel</label>
+              <input type="number" id="anlANivel" value="50" min="1" max="100" class="calc-input-num">
+            </div>
+            <div class="anl-config__fila">
+              <label>EVs Atk/SpA</label>
+              <input type="number" id="anlAEvAtk" value="252" min="0" max="252" step="4" class="calc-input-num">
+              <span class="calc-hint">/</span>
+              <input type="number" id="anlAEvSpa" value="0"   min="0" max="252" step="4" class="calc-input-num">
+            </div>
+            <div class="anl-config__fila">
+              <label>EVs Vel</label>
+              <input type="number" id="anlAEvSpd" value="252" min="0" max="252" step="4" class="calc-input-num">
+            </div>
+            <div class="anl-config__fila">
+              <label>Naturaleza</label>
+              <select id="anlANat" class="calc-select">
+                <option value="neutral">Neutral</option>
+                <option value="atk+">+Ataque</option>
+                <option value="spa+">+At.Esp</option>
+                <option value="spd_vel+">+Velocidad</option>
+                <option value="atk-">−Ataque</option>
+                <option value="spa-">−At.Esp</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── PANEL CENTRAL DE RESULTADOS ── -->
+        <div class="anl-centro">
+          <div class="anl-vs-badge">VS</div>
+          <div class="anl-resultado" id="anlResultado">
+            <div class="calc-resultado-vacio" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px">
+              <div class="pokeball-grande pokeball-grande--dim"></div>
+              <p style="font-size:12px;color:var(--texto-muted);text-align:center">
+                Selecciona dos Pokémon<br>y pulsa <strong>Analizar</strong>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── SELECTOR POKÉMON B ── -->
+        <div class="anl-selector anl-selector--b">
+          <div class="anl-selector__titulo">
+            <i class="ti ti-shield" style="color:#22c55e"></i> POKÉMON B
+          </div>
+          <div class="calc-buscador-wrap">
+            <div class="buscador">
+              <i class="ti ti-search"></i>
+              <input type="text" id="anlBInput" placeholder="Buscar Pokémon..." oninput="anlBuscar(this.value,'b')" autocomplete="off">
+            </div>
+            <div class="calc-sugerencias" id="anlBSugerencias"></div>
+          </div>
+          <div class="anl-pokemon-preview" id="anlBPreview">
+            <div class="calc-pokemon-vacio"><i class="ti ti-pokeball"></i><span>Selecciona un Pokémon</span></div>
+          </div>
+          <!-- Config rápida B -->
+          <div class="anl-config" id="anlBConfig" style="display:none">
+            <div class="anl-config__fila">
+              <label>Nivel</label>
+              <input type="number" id="anlBNivel" value="50" min="1" max="100" class="calc-input-num">
+            </div>
+            <div class="anl-config__fila">
+              <label>EVs Atk/SpA</label>
+              <input type="number" id="anlBEvAtk" value="252" min="0" max="252" step="4" class="calc-input-num">
+              <span class="calc-hint">/</span>
+              <input type="number" id="anlBEvSpa" value="0"   min="0" max="252" step="4" class="calc-input-num">
+            </div>
+            <div class="anl-config__fila">
+              <label>EVs Vel</label>
+              <input type="number" id="anlBEvSpd" value="252" min="0" max="252" step="4" class="calc-input-num">
+            </div>
+            <div class="anl-config__fila">
+              <label>Naturaleza</label>
+              <select id="anlBNat" class="calc-select">
+                <option value="neutral">Neutral</option>
+                <option value="atk+">+Ataque</option>
+                <option value="spa+">+At.Esp</option>
+                <option value="spd_vel+">+Velocidad</option>
+                <option value="atk-">−Ataque</option>
+                <option value="spa-">−At.Esp</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+    <!-- ══ CALCULADORA DE DAÑO ══ -->
+    <section class="vista" id="vista-calculadora">
+      <div class="vista-header">
+        <div>
+          <h2 class="vista-header__titulo"><i class="ti ti-bolt"></i> Calculadora de Daño</h2>
+          <p class="vista-header__sub">Calcula rangos de daño precisos para combate competitivo</p>
+        </div>
+        <div class="vista-header__acciones">
+          <button class="btn-accion btn-accion--secundario" onclick="limpiarCalculadora()">
+            <i class="ti ti-refresh"></i> Limpiar
+          </button>
+          <button class="btn-accion btn-accion--primario" onclick="calcularDanio()">
+            <i class="ti ti-bolt"></i> Calcular
+          </button>
+        </div>
+      </div>
+
+      <div class="calc-layout">
+
+        <!-- ── PANEL ATACANTE ── -->
+        <div class="calc-panel calc-panel--atacante">
+          <div class="calc-panel__titulo">
+            <i class="ti ti-sword" style="color:#f97316"></i> ATACANTE
+          </div>
+
+          <div class="calc-buscador-wrap">
+            <div class="buscador">
+              <i class="ti ti-search"></i>
+              <input type="text" id="calcAtacanteInput" placeholder="Buscar Pokémon..." oninput="calcBuscarPokemon(this.value,'atacante')" autocomplete="off">
+            </div>
+            <div class="calc-sugerencias" id="calcAtacanteSugerencias"></div>
+          </div>
+
+          <div class="calc-pokemon-info" id="calcAtacanteInfo">
+            <div class="calc-pokemon-vacio">
+              <i class="ti ti-pokeball"></i>
+              <span>Selecciona un Pokémon</span>
+            </div>
+          </div>
+
+          <div class="calc-campos">
+            <div class="calc-fila">
+              <label>Nivel</label>
+              <input type="number" id="calcAtacanteNivel" value="50" min="1" max="100" class="calc-input-num">
+            </div>
+            <div class="calc-fila">
+              <label>Naturaleza</label>
+              <select id="calcAtacanteNaturaleza" class="calc-select">
+                <option value="neutral">Neutral (×1.0)</option>
+                <optgroup label="+ Ataque">
+                  <option value="atk+">Audaz / Firme / Osado / Activo / Cruel (+Atk)</option>
+                </optgroup>
+                <optgroup label="+ At.Esp">
+                  <option value="spa+">Modesto / Sereno / Templado / Plácido / Tímido (+SpA)</option>
+                </optgroup>
+                <optgroup label="− Ataque">
+                  <option value="atk-">Bold / Calm / Gentle / Sassy / Careful (−Atk)</option>
+                </optgroup>
+                <optgroup label="− At.Esp">
+                  <option value="spa-">Adamant / Impish / Jolly / Careful / Galant (−SpA)</option>
+                </optgroup>
+              </select>
+            </div>
+            <div class="calc-fila">
+              <label>EVs en ataque</label>
+              <input type="number" id="calcAtacanteEvAtk" value="252" min="0" max="252" step="4" class="calc-input-num">
+              <span class="calc-hint">/ EVs en At.Esp</span>
+              <input type="number" id="calcAtacanteEvSpa" value="0" min="0" max="252" step="4" class="calc-input-num">
+            </div>
+            <div class="calc-fila">
+              <label>Objeto</label>
+              <select id="calcAtacanteObjeto" class="calc-select">
+                <option value="ninguno">Sin objeto</option>
+                <optgroup label="Potenciadores de daño">
+                  <option value="banda-elegida">Banda Elegida (×1.5 Atk)</option>
+                  <option value="gafas-elegidas">Gafas Elegidas (×1.5 SpA)</option>
+                  <option value="vida-orbe">Vida Orbe (×1.3)</option>
+                  <option value="faja-experto">Faja Experto (×1.2 si efectivo)</option>
+                </optgroup>
+                <optgroup label="Tera">
+                  <option value="orbe-tera">Orbe Tera (×2.0 STAB Tera)</option>
+                </optgroup>
+              </select>
+            </div>
+          </div>
+
+          <!-- Movimiento a usar -->
+          <div class="calc-movimiento-seccion">
+            <div class="calc-panel__titulo" style="margin-top:8px">
+              <i class="ti ti-bolt" style="color:#facc15"></i> MOVIMIENTO
+            </div>
+            <div class="calc-fila">
+              <label>Nombre</label>
+              <input type="text" id="calcMovNombre" placeholder="ej. Llamarada, Terremoto..." class="calc-input-texto">
+            </div>
+            <div class="calc-fila">
+              <label>Potencia</label>
+              <input type="number" id="calcMovPotencia" value="80" min="1" max="250" class="calc-input-num">
+            </div>
+            <div class="calc-fila">
+              <label>Categoría</label>
+              <select id="calcMovCategoria" class="calc-select">
+                <option value="fisico">Físico</option>
+                <option value="especial">Especial</option>
+              </select>
+            </div>
+            <div class="calc-fila">
+              <label>Tipo del movimiento</label>
+              <select id="calcMovTipo" class="calc-select">
+                <option value="normal">Normal</option>
+                <option value="fire">Fuego</option>
+                <option value="water">Agua</option>
+                <option value="electric">Eléctrico</option>
+                <option value="grass">Planta</option>
+                <option value="ice">Hielo</option>
+                <option value="fighting">Lucha</option>
+                <option value="poison">Veneno</option>
+                <option value="ground">Tierra</option>
+                <option value="flying">Volador</option>
+                <option value="psychic">Psíquico</option>
+                <option value="bug">Bicho</option>
+                <option value="rock">Roca</option>
+                <option value="ghost">Fantasma</option>
+                <option value="dragon">Dragón</option>
+                <option value="dark">Siniestro</option>
+                <option value="steel">Acero</option>
+                <option value="fairy">Hada</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── PANEL RESULTADO (CENTRO) ── -->
+        <div class="calc-panel calc-panel--resultado">
+          <div class="calc-panel__titulo" style="justify-content:center">
+            <i class="ti ti-chart-bar" style="color:#22d3ee"></i> RESULTADO
+          </div>
+
+          <div class="calc-resultado-area" id="calcResultadoArea">
+            <div class="calc-resultado-vacio">
+              <div class="pokeball-grande pokeball-grande--dim"></div>
+              <p>Completa los datos y<br>pulsa <strong>Calcular</strong></p>
+            </div>
+          </div>
+
+          <!-- Modificadores adicionales -->
+          <div class="calc-modificadores">
+            <div class="calc-panel__titulo" style="margin-top:4px">
+              <i class="ti ti-adjustments" style="color:#a78bfa"></i> MODIFICADORES
+            </div>
+            <div class="calc-mod-grid">
+              <label class="calc-check">
+                <input type="checkbox" id="calcStab"> STAB (×1.5)
+              </label>
+              <label class="calc-check">
+                <input type="checkbox" id="calcCritico"> Crítico (×1.5)
+              </label>
+              <label class="calc-check">
+                <input type="checkbox" id="calcPantalla"> Pantalla (×0.5)
+              </label>
+              <label class="calc-check">
+                <input type="checkbox" id="calcDoblesBurn"> Burn (×0.5 fís.)
+              </label>
+            </div>
+            <div class="calc-fila" style="margin-top:6px">
+              <label>Clima</label>
+              <select id="calcClima" class="calc-select">
+                <option value="ninguno">Sin clima</option>
+                <option value="sol">Sol (×1.5 Fuego / ×0.5 Agua)</option>
+                <option value="lluvia">Lluvia (×1.5 Agua / ×0.5 Fuego)</option>
+                <option value="granizo">Granizo</option>
+                <option value="arena">Tormenta de arena</option>
+              </select>
+            </div>
+            <div class="calc-fila">
+              <label>Campo</label>
+              <select id="calcCampo" class="calc-select">
+                <option value="ninguno">Sin campo</option>
+                <option value="electrico">Terreno Eléctrico (×1.3 Eléct.)</option>
+                <option value="herboso">Terreno Herboso (×1.3 Planta)</option>
+                <option value="brumoso">Terreno Brumoso (×1.3 Hada)</option>
+                <option value="psiquico">Terreno Psíquico (×1.3 Psíq.)</option>
+              </select>
+            </div>
+            <div class="calc-fila">
+              <label>Tera Tipo</label>
+              <select id="calcTeraTipo" class="calc-select">
+                <option value="ninguno">Sin Tera</option>
+                <option value="normal">Normal</option>
+                <option value="fire">Fuego</option>
+                <option value="water">Agua</option>
+                <option value="electric">Eléctrico</option>
+                <option value="grass">Planta</option>
+                <option value="ice">Hielo</option>
+                <option value="fighting">Lucha</option>
+                <option value="poison">Veneno</option>
+                <option value="ground">Tierra</option>
+                <option value="flying">Volador</option>
+                <option value="psychic">Psíquico</option>
+                <option value="bug">Bicho</option>
+                <option value="rock">Roca</option>
+                <option value="ghost">Fantasma</option>
+                <option value="dragon">Dragón</option>
+                <option value="dark">Siniestro</option>
+                <option value="steel">Acero</option>
+                <option value="fairy">Hada</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── PANEL DEFENSOR ── -->
+        <div class="calc-panel calc-panel--defensor">
+          <div class="calc-panel__titulo">
+            <i class="ti ti-shield" style="color:#22c55e"></i> DEFENSOR
+          </div>
+
+          <div class="calc-buscador-wrap">
+            <div class="buscador">
+              <i class="ti ti-search"></i>
+              <input type="text" id="calcDefensorInput" placeholder="Buscar Pokémon..." oninput="calcBuscarPokemon(this.value,'defensor')" autocomplete="off">
+            </div>
+            <div class="calc-sugerencias" id="calcDefensorSugerencias"></div>
+          </div>
+
+          <div class="calc-pokemon-info" id="calcDefensorInfo">
+            <div class="calc-pokemon-vacio">
+              <i class="ti ti-pokeball"></i>
+              <span>Selecciona un Pokémon</span>
+            </div>
+          </div>
+
+          <div class="calc-campos">
+            <div class="calc-fila">
+              <label>Nivel</label>
+              <input type="number" id="calcDefensorNivel" value="50" min="1" max="100" class="calc-input-num">
+            </div>
+            <div class="calc-fila">
+              <label>Naturaleza</label>
+              <select id="calcDefensorNaturaleza" class="calc-select">
+                <option value="neutral">Neutral (×1.0)</option>
+                <optgroup label="+ Defensa">
+                  <option value="def+">Bold / Lax / Relaxed / Impish / Naughty (+Def)</option>
+                </optgroup>
+                <optgroup label="+ Def.Esp">
+                  <option value="spd+">Calm / Careful / Gentle / Sassy / Quirky (+SpD)</option>
+                </optgroup>
+                <optgroup label="− Defensa">
+                  <option value="def-">Lonely / Mild / Hasty / Gentle / Rash (−Def)</option>
+                </optgroup>
+                <optgroup label="− Def.Esp">
+                  <option value="spd-">Naughty / Lax / Naive / Rash / Hasty (−SpD)</option>
+                </optgroup>
+              </select>
+            </div>
+            <div class="calc-fila">
+              <label>EVs en defensa</label>
+              <input type="number" id="calcDefensorEvDef" value="4" min="0" max="252" step="4" class="calc-input-num">
+              <span class="calc-hint">/ EVs Def.Esp</span>
+              <input type="number" id="calcDefensorEvSpd" value="0" min="0" max="252" step="4" class="calc-input-num">
+            </div>
+            <div class="calc-fila">
+              <label>Objeto</label>
+              <select id="calcDefensorObjeto" class="calc-select">
+                <option value="ninguno">Sin objeto</option>
+                <optgroup label="Reducción de daño">
+                  <option value="chaleco-asalto">Chaleco de Asalto (×0.67 SpD)</option>
+                  <option value="bayas-sitrus">Baya Sitrus (recupera 25% PS)</option>
+                  <option value="roca-eviolita">Roca Eviolita (×1.5 Def/SpD)</option>
+                  <option value="orbe-vida-def">Orbe Vida (no modifica)</option>
+                </optgroup>
+              </select>
+            </div>
+            <div class="calc-fila">
+              <label>PS actuales</label>
+              <input type="number" id="calcDefensorPsAct" value="100" min="1" max="100" class="calc-input-num">
+              <span class="calc-hint">%</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+    <section class="vista" id="vista-configuracion">
+      <div class="vista-header"><div><h2 class="vista-header__titulo"><i class="ti ti-settings"></i> Configuración</h2><p class="vista-header__sub">Personaliza tu experiencia</p></div></div>
+      <div class="config-grid">
+        <div class="config-card">
+          <h4><i class="ti ti-palette"></i> Apariencia</h4>
+          <div class="config-opcion"><span>Modo oscuro</span><label class="toggle"><input type="checkbox" checked onchange="toggleModo()"><span class="toggle__slider"></span></label></div>
+          <div class="config-opcion"><span>Animaciones</span><label class="toggle"><input type="checkbox" checked><span class="toggle__slider"></span></label></div>
+        </div>
+        <div class="config-card">
+          <h4><i class="ti ti-database"></i> Datos</h4>
+          <div class="config-opcion"><span>Fuente de datos</span><span class="config-valor">PokéAPI</span></div>
+          <div class="config-opcion"><span>Versión</span><span class="config-valor">1.0.0</span></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+<script src="js/app.js"></script>
+</body>
+</html>
