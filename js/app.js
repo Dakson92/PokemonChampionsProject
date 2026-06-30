@@ -79,6 +79,8 @@ function navegarA(vista) {
   if (vista === 'pokedex' && !estado.cargadoCompleto && !estado.cargando) {
     cargarTodosLosPokemon();
   }
+  // Activar módulos que necesitan renderizado al entrar
+  if (vista === 'cobertura') setTimeout(renderizarCobertura, 50);
 }
 
 // ── MODO OSCURO ───────────────────────────────────────────────
@@ -1680,3 +1682,433 @@ function limpiarAnalizador() {
     </div>`;
   mostrarToast('🔄 Analizador limpiado','ok');
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   ANALIZADOR DE COBERTURA
+   Analiza cobertura ofensiva STAB, huecos, resistencias del
+   equipo, vulnerabilidades comunes, mapa 18 tipos y sinergia.
+═══════════════════════════════════════════════════════════════ */
+
+// ── Calcular mejor multiplicador ofensivo de un Pokémon
+//    contra un tipo defensor, considerando STAB ─────────────────
+function cobMultOfensivo(pokemon, tipoDefensor) {
+  const tiposPk = pokemon.types.map(t => t.type.name);
+  let mejor = 0;
+  tiposPk.forEach(tipoAtk => {
+    // Multiplicador STAB del movimiento de ese tipo contra el defensor
+    // (tipo defensor simple, no dual — se llama tipo por tipo)
+    const m = MULT[tipoAtk]?.[tipoDefensor] ?? 1;
+    const mStab = m * 1.5; // STAB
+    if (mStab > mejor) mejor = mStab;
+  });
+  return mejor;
+}
+
+// ── Mejor multiplicador ofensivo de TODO el equipo contra un tipo
+function cobEquipoVsTipo(ocupados, tipoDefensor) {
+  let mejor = 0;
+  ocupados.forEach(pk => {
+    const m = cobMultOfensivo(pk, tipoDefensor);
+    if (m > mejor) mejor = m;
+  });
+  return mejor;
+}
+
+// ── Renderizado principal ─────────────────────────────────────
+function renderizarCobertura() {
+  const ocupados = miEquipo.filter(Boolean);
+  const sinEquipo = document.getElementById('cobSinEquipo');
+  const conEquipo = document.getElementById('cobContenido');
+
+  if (!ocupados.length) {
+    sinEquipo.style.display = 'flex';
+    conEquipo.style.display = 'none';
+    return;
+  }
+  sinEquipo.style.display = 'none';
+  conEquipo.style.display = 'flex';
+
+  // Renderizar todos los bloques en orden
+  cobRenderizarStrip(ocupados);
+  const datosOfensiva  = cobRenderizarOfensiva(ocupados);
+  const datosDefensiva = cobRenderizarDefensiva(ocupados);
+  cobRenderizarMapa(ocupados);
+  cobRenderizarSinergia(ocupados);
+  cobRenderizarPuntuacion(ocupados, datosOfensiva, datosDefensiva);
+  cobRenderizarRecomendaciones(ocupados, datosOfensiva, datosDefensiva);
+}
+
+// ── Puntuación global del equipo ──────────────────────────────
+function cobRenderizarPuntuacion(ocupados, of, df) {
+  const scoreOfensivo  = Math.round(of.cubiertos.length / 18 * 100);
+  const scoreDefensivo = Math.round((18 - df.vulnerabilidades.length) / 18 * 100);
+  const scoreSinergia  = ocupados.length >= 2
+    ? Math.min(100, Math.round((df.resistencias.length / 10) * 100))
+    : 0;
+  const scoreGlobal = Math.round((scoreOfensivo + scoreDefensivo + scoreSinergia) / 3);
+
+  const colorScore = s => s >= 75 ? '#22c55e' : s >= 50 ? '#facc15' : '#ef4444';
+
+  const el = document.getElementById('cobPuntuacion');
+  if (!el) return;
+  el.innerHTML = `
+    <div class="cob-score-item">
+      <div class="cob-score-anillo" style="--pct:${scoreOfensivo};--color:${colorScore(scoreOfensivo)}">
+        <span>${scoreOfensivo}</span>
+      </div>
+      <span class="cob-score-label">Cobertura<br>Ofensiva</span>
+    </div>
+    <div class="cob-score-item">
+      <div class="cob-score-anillo" style="--pct:${scoreDefensivo};--color:${colorScore(scoreDefensivo)}">
+        <span>${scoreDefensivo}</span>
+      </div>
+      <span class="cob-score-label">Cobertura<br>Defensiva</span>
+    </div>
+    <div class="cob-score-item">
+      <div class="cob-score-anillo" style="--pct:${scoreSinergia};--color:${colorScore(scoreSinergia)}">
+        <span>${scoreSinergia}</span>
+      </div>
+      <span class="cob-score-label">Sinergia<br>del Equipo</span>
+    </div>
+    <div class="cob-score-item cob-score-item--global">
+      <div class="cob-score-anillo cob-score-anillo--grande" style="--pct:${scoreGlobal};--color:${colorScore(scoreGlobal)}">
+        <span>${scoreGlobal}</span>
+      </div>
+      <span class="cob-score-label">Puntuación<br>Global</span>
+    </div>`;
+}
+
+// ── Recomendaciones automáticas ───────────────────────────────
+function cobRenderizarRecomendaciones(ocupados, of, df) {
+  const el = document.getElementById('cobRecomendaciones');
+  if (!el) return;
+
+  const sugerencias = [];
+
+  // Huecos ofensivos críticos
+  if (of.huecos.length > 0) {
+    const tiposHueco = of.huecos.map(h => TIPOS_ES[h.tipo] || h.tipo).slice(0, 4).join(', ');
+    sugerencias.push({
+      tipo: 'ofensivo',
+      icon: 'ti-sword',
+      color: '#f97316',
+      titulo: 'Huecos ofensivos detectados',
+      texto: `Tu equipo no cubre con STAB: ${tiposHueco}${of.huecos.length > 4 ? ` y ${of.huecos.length - 4} más` : ''}. Considera Pokémon que tengan esos tipos.`
+    });
+  }
+
+  // Vulnerabilidades comunes
+  if (df.vulnerabilidades.length > 0) {
+    const tiposVuln = df.vulnerabilidades
+      .sort((a,b) => b.count - a.count)
+      .slice(0, 3)
+      .map(v => `${TIPOS_ES[v.tipo]} (${v.count}/${ocupados.length})`)
+      .join(', ');
+    sugerencias.push({
+      tipo: 'defensivo',
+      icon: 'ti-shield-exclamation',
+      color: '#ef4444',
+      titulo: 'Vulnerabilidades comunes en el equipo',
+      texto: `Los tipos ${tiposVuln} golpean super efectivo a la mayoría. Añade Pokémon resistentes o inmunes.`
+    });
+  }
+
+  // Tipos repetidos en el equipo
+  const cuentaTipos = {};
+  ocupados.forEach(pk => {
+    pk.types.forEach(t => {
+      cuentaTipos[t.type.name] = (cuentaTipos[t.type.name] || 0) + 1;
+    });
+  });
+  const repetidos = Object.entries(cuentaTipos).filter(([,n]) => n >= 3);
+  if (repetidos.length) {
+    const nombres = repetidos.map(([t]) => TIPOS_ES[t] || t).join(', ');
+    sugerencias.push({
+      tipo: 'diversidad',
+      icon: 'ti-copy',
+      color: '#a78bfa',
+      titulo: 'Tipos repetidos en el equipo',
+      texto: `Tienes demasiados Pokémon del tipo ${nombres}. Diversifica para evitar debilidades concentradas.`
+    });
+  }
+
+  // Resistencias cubiertas: punto positivo
+  if (df.resistencias.length >= 8) {
+    sugerencias.push({
+      tipo: 'positivo',
+      icon: 'ti-check',
+      color: '#22c55e',
+      titulo: 'Buena cobertura defensiva',
+      texto: `El equipo resiste colectivamente ${df.resistencias.length} tipos. ¡Sólida base defensiva!`
+    });
+  }
+
+  // Equipo completo de 6
+  if (ocupados.length < 6) {
+    sugerencias.push({
+      tipo: 'info',
+      icon: 'ti-info-circle',
+      color: '#22d3ee',
+      titulo: 'Equipo incompleto',
+      texto: `Tienes ${ocupados.length}/6 Pokémon. Completa el equipo para un análisis más preciso.`
+    });
+  }
+
+  if (!sugerencias.length) {
+    sugerencias.push({
+      tipo: 'positivo',
+      icon: 'ti-trophy',
+      color: '#facc15',
+      titulo: '¡Equipo bien balanceado!',
+      texto: 'No se detectaron problemas graves de cobertura. Revisa los detalles del mapa para afinar.'
+    });
+  }
+
+  el.innerHTML = sugerencias.map(s => `
+    <div class="cob-recom" style="border-left-color:${s.color};background:${s.color}08">
+      <i class="ti ${s.icon}" style="color:${s.color};font-size:16px;flex-shrink:0;margin-top:1px"></i>
+      <div>
+        <div class="cob-recom__titulo" style="color:${s.color}">${s.titulo}</div>
+        <div class="cob-recom__texto">${s.texto}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ── Strip superior: sprites del equipo ───────────────────────
+function cobRenderizarStrip(ocupados) {
+  const strip = document.getElementById('cobEquipoStrip');
+  strip.innerHTML = `
+    <span class="cob-strip__label">EQUIPO ANALIZADO</span>
+    ${ocupados.map(p => {
+      const spr = p.sprites?.front_default || '';
+      const nom = p.name.charAt(0).toUpperCase() + p.name.slice(1);
+      const tipos = p.types.map(t =>
+        `<span class="tipo-badge tipo-${t.type.name}" style="font-size:7px;padding:1px 5px">${TIPOS_ES[t.type.name]||t.type.name}</span>`
+      ).join('');
+      return `<div class="cob-strip__pk">
+        ${spr ? `<img src="${spr}" alt="${nom}">` : ''}
+        <span>${nom}</span>
+        <div style="display:flex;gap:2px;flex-wrap:wrap;justify-content:center">${tipos}</div>
+      </div>`;
+    }).join('')}`;
+}
+
+// ── Panel ofensivo: STAB cubiertos y huecos ───────────────────
+function cobRenderizarOfensiva(ocupados) {
+  const cubiertos = [], huecos = [];
+
+  TODOS_TIPOS.forEach(tipoDefensor => {
+    const mejor = cobEquipoVsTipo(ocupados, tipoDefensor);
+    // STAB super efectivo = tipo atacante STAB (1.5) × efectividad ≥2 → ≥3
+    if (mejor >= 3) {
+      // Quién lo cubre
+      const cubridores = ocupados
+        .filter(pk => cobMultOfensivo(pk, tipoDefensor) >= 3)
+        .map(pk => pk.name.charAt(0).toUpperCase() + pk.name.slice(1));
+      cubiertos.push({ tipo: tipoDefensor, mult: mejor, cubridores });
+    } else {
+      huecos.push({ tipo: tipoDefensor, mult: mejor });
+    }
+  });
+
+  // Score
+  const pct = Math.round(cubiertos.length / 18 * 100);
+  document.getElementById('cobStabScore').textContent = `${cubiertos.length}/18`;
+  document.getElementById('cobStabScore').style.background =
+    pct >= 75 ? 'rgba(34,197,94,0.2)' : pct >= 50 ? 'rgba(250,204,21,0.2)' : 'rgba(239,68,68,0.2)';
+
+  document.getElementById('cobHuecosScore').textContent = `${huecos.length}/18`;
+
+  // Renderizar cubiertos
+  document.getElementById('cobStabGrid').innerHTML = cubiertos.length
+    ? cubiertos.map(c => `
+        <div class="cob-tipo-item cob-tipo-item--ok" title="${c.cubridores.join(', ')}">
+          <span class="tipo-badge tipo-${c.tipo}">${TIPOS_ES[c.tipo]||c.tipo}</span>
+          <span class="cob-tipo-mult">×${(c.mult).toFixed(1)}</span>
+          <span class="cob-tipo-quien">${c.cubridores.slice(0,2).join(' · ')}${c.cubridores.length>2?` +${c.cubridores.length-2}`:''}</span>
+        </div>`).join('')
+    : '<span class="cob-vacio">Sin cobertura STAB</span>';
+
+  // Renderizar huecos
+  document.getElementById('cobHuecosGrid').innerHTML = huecos.length
+    ? huecos.map(h => `
+        <div class="cob-tipo-item cob-tipo-item--mal">
+          <span class="tipo-badge tipo-${h.tipo}">${TIPOS_ES[h.tipo]||h.tipo}</span>
+          <span class="cob-tipo-mult" style="color:#ef4444">${h.mult > 0 ? '×'+h.mult.toFixed(1) : '✕'}</span>
+        </div>`).join('')
+    : '<span class="cob-vacio cob-vacio--ok">¡Sin huecos! Cobertura perfecta</span>';
+
+  return { cubiertos, huecos };
+}
+
+// ── Panel defensivo: resistencias y vulnerabilidades ─────────
+function cobRenderizarDefensiva(ocupados) {
+  const resistencias = [], vulnerabilidades = [];
+  const umbralRes  = Math.ceil(ocupados.length / 2); // mitad resiste
+  const umbralVuln = Math.ceil(ocupados.length / 2); // mitad es débil
+
+  TODOS_TIPOS.forEach(tipoAtk => {
+    const mults = ocupados.map(pk => calcularMultiplicador(tipoAtk, pk.types.map(t => t.type.name)));
+    const resN  = mults.filter(m => m < 1).length;
+    const vulnN = mults.filter(m => m >= 2).length;
+
+    if (resN >= umbralRes) {
+      resistencias.push({ tipo: tipoAtk, count: resN, total: ocupados.length });
+    }
+    if (vulnN >= umbralVuln) {
+      vulnerabilidades.push({ tipo: tipoAtk, count: vulnN, total: ocupados.length });
+    }
+  });
+
+  document.getElementById('cobResScore').textContent = `${resistencias.length}`;
+  document.getElementById('cobVulnScore').textContent = `${vulnerabilidades.length}`;
+
+  document.getElementById('cobResGrid').innerHTML = resistencias.length
+    ? resistencias.sort((a,b) => b.count-a.count).map(r => `
+        <div class="cob-tipo-item cob-tipo-item--res">
+          <span class="tipo-badge tipo-${r.tipo}">${TIPOS_ES[r.tipo]||r.tipo}</span>
+          <span class="cob-tipo-mult" style="color:#22c55e">${r.count}/${r.total}</span>
+        </div>`).join('')
+    : '<span class="cob-vacio">Sin resistencias compartidas</span>';
+
+  document.getElementById('cobVulnGrid').innerHTML = vulnerabilidades.length
+    ? vulnerabilidades.sort((a,b) => b.count-a.count).map(v => `
+        <div class="cob-tipo-item cob-tipo-item--mal">
+          <span class="tipo-badge tipo-${v.tipo}">${TIPOS_ES[v.tipo]||v.tipo}</span>
+          <span class="cob-tipo-mult" style="color:#ef4444">${v.count}/${v.total}</span>
+        </div>`).join('')
+    : '<span class="cob-vacio cob-vacio--ok">¡Sin vulnerabilidades comunes!</span>';
+
+  return { resistencias, vulnerabilidades };
+}
+
+// ── Mapa completo: tabla Pokémon × 18 tipos ───────────────────
+function cobRenderizarMapa(ocupados) {
+  const tabla = document.getElementById('cobMapaTabla');
+
+  // Encabezado: nombres del equipo
+  const thead = `<thead><tr>
+    <th class="cob-mapa-th cob-mapa-th--tipo">Tipo</th>
+    ${ocupados.map(p => {
+      const nom = p.name.charAt(0).toUpperCase() + p.name.slice(1);
+      return `<th class="cob-mapa-th">${nom}</th>`;
+    }).join('')}
+    <th class="cob-mapa-th" style="color:var(--amarillo)">Mejor</th>
+  </tr></thead>`;
+
+  // Filas: un tipo defensor por fila
+  const filas = TODOS_TIPOS.map(tipoDefensor => {
+    const celdas = ocupados.map(pk => {
+      const m = cobMultOfensivo(pk, tipoDefensor);
+      let cls = 'cob-celda--neutro', txt = '—';
+      if (m >= 4.5)      { cls = 'cob-celda--x4';  txt = '×4'; }   // STAB + x4 efectividad
+      else if (m >= 3)   { cls = 'cob-celda--x2';  txt = '×2'; }   // STAB + x2
+      else if (m >= 2.25){ cls = 'cob-celda--x15'; txt = '×1.5'; } // STAB neutral
+      else if (m > 0 && m < 1.5) { cls = 'cob-celda--x05'; txt = '½'; }
+      else if (m === 0)  { cls = 'cob-celda--x0';  txt = '✕'; }
+      return { cls, txt, m };
+    });
+
+    const mejor = Math.max(...celdas.map(c => c.m));
+    let mejorCls = 'cob-celda--neutro', mejorTxt = '—';
+    if (mejor >= 4.5)      { mejorCls = 'cob-celda--x4';  mejorTxt = '×4'; }
+    else if (mejor >= 3)   { mejorCls = 'cob-celda--x2';  mejorTxt = '×2'; }
+    else if (mejor >= 2.25){ mejorCls = 'cob-celda--x15'; mejorTxt = '×1.5'; }
+    else if (mejor < 1.5 && mejor > 0) { mejorCls = 'cob-celda--x05'; mejorTxt = '½'; }
+    else if (mejor === 0)  { mejorCls = 'cob-celda--x0';  mejorTxt = '✕'; }
+
+    return `<tr>
+      <td class="cob-mapa-td-tipo">
+        <span class="tipo-badge tipo-${tipoDefensor}" style="font-size:8px;padding:1px 6px">${TIPOS_ES[tipoDefensor]||tipoDefensor}</span>
+      </td>
+      ${celdas.map(c => `<td class="cob-celda ${c.cls}">${c.txt}</td>`).join('')}
+      <td class="cob-celda ${mejorCls}" style="font-weight:700">${mejorTxt}</td>
+    </tr>`;
+  }).join('');
+
+  tabla.innerHTML = `${thead}<tbody>${filas}</tbody>`;
+}
+
+// ── Sinergia: pares de Pokémon que se complementan ────────────
+function cobRenderizarSinergia(ocupados) {
+  const cont = document.getElementById('cobSinergiaGrid');
+
+  if (ocupados.length < 2) {
+    cont.innerHTML = '<span class="cob-vacio">Necesitas al menos 2 Pokémon para analizar sinergia.</span>';
+    return;
+  }
+
+  // Para cada Pokémon: qué tipos son su punto débil
+  // Sinergia = otro Pokémon es inmune/resistente a esas debilidades
+  const fichas = ocupados.map(pk => {
+    const debilidadesPk = TODOS_TIPOS.filter(atk =>
+      calcularMultiplicador(atk, pk.types.map(t => t.type.name)) >= 2
+    );
+    return { pk, debilidadesPk };
+  });
+
+  const pares = [];
+  for (let i = 0; i < fichas.length; i++) {
+    for (let j = i + 1; j < fichas.length; j++) {
+      const a = fichas[i], b = fichas[j];
+      // Cuántas debilidades de A cubre B (resiste o es inmune)
+      const aCubreB = a.debilidadesPk.filter(deb => {
+        const m = calcularMultiplicador(deb, b.pk.types.map(t => t.type.name));
+        return m < 1; // resistente o inmune
+      });
+      const bCubreA = b.debilidadesPk.filter(deb => {
+        const m = calcularMultiplicador(deb, a.pk.types.map(t => t.type.name));
+        return m < 1;
+      });
+      const score = aCubreB.length + bCubreA.length;
+      pares.push({ a: a.pk, b: b.pk, aCubreB, bCubreA, score });
+    }
+  }
+
+  // Ordenar de mayor a menor sinergia
+  pares.sort((x, y) => y.score - x.score);
+
+  cont.innerHTML = pares.map(par => {
+    const sprA = par.a.sprites?.front_default || '';
+    const sprB = par.b.sprites?.front_default || '';
+    const nomA = par.a.name.charAt(0).toUpperCase() + par.a.name.slice(1);
+    const nomB = par.b.name.charAt(0).toUpperCase() + par.b.name.slice(1);
+    const nivel = par.score >= 6 ? 'alta' : par.score >= 3 ? 'media' : 'baja';
+    const colorNivel = nivel === 'alta' ? '#22c55e' : nivel === 'media' ? '#facc15' : '#6b7280';
+
+    const listaCubreAB = par.aCubreB.map(t =>
+      `<span class="tipo-badge tipo-${t}" style="font-size:7px;padding:1px 4px">${TIPOS_ES[t]||t}</span>`
+    ).join('');
+    const listasCubreBA = par.bCubreA.map(t =>
+      `<span class="tipo-badge tipo-${t}" style="font-size:7px;padding:1px 4px">${TIPOS_ES[t]||t}</span>`
+    ).join('');
+
+    return `<div class="cob-par">
+      <div class="cob-par__header">
+        <div class="cob-par__pk">
+          ${sprA?`<img src="${sprA}" alt="${nomA}">`:''}<span>${nomA}</span>
+        </div>
+        <div class="cob-par__sinergia" style="border-color:${colorNivel}40;background:${colorNivel}10">
+          <span style="color:${colorNivel};font-size:16px;font-weight:800">${par.score}</span>
+          <span style="font-size:9px;color:${colorNivel}">Sinergia ${nivel}</span>
+        </div>
+        <div class="cob-par__pk">
+          ${sprB?`<img src="${sprB}" alt="${nomB}">`:''}<span>${nomB}</span>
+        </div>
+      </div>
+      ${par.aCubreB.length ? `<div class="cob-par__detalle">
+        <span style="font-size:9px;color:var(--texto-muted)">${nomB} cubre debilidades de ${nomA}:</span>
+        <div style="display:flex;gap:3px;flex-wrap:wrap;margin-top:2px">${listaCubreAB}</div>
+      </div>` : ''}
+      ${par.bCubreA.length ? `<div class="cob-par__detalle">
+        <span style="font-size:9px;color:var(--texto-muted)">${nomA} cubre debilidades de ${nomB}:</span>
+        <div style="display:flex;gap:3px;flex-wrap:wrap;margin-top:2px">${listasCubreBA}</div>
+      </div>` : ''}
+      ${!par.aCubreB.length && !par.bCubreA.length
+        ? `<div class="cob-par__detalle"><span style="font-size:9px;color:var(--texto-muted)">Sin sinergia defensiva entre este par</span></div>`
+        : ''}
+    </div>`;
+  }).join('');
+}
+
+// navegarA ya incluye renderizarCobertura() directamente
