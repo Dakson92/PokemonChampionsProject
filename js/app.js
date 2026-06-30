@@ -57,7 +57,45 @@ const MULT = {
   fairy:    {fire:0.5,fighting:2,poison:0.5,dragon:2,dark:2,steel:0.5}
 };
 
-// ── ESTADO ────────────────────────────────────────────────────
+const TODOS_TIPOS = Object.keys(TIPOS_ES);
+
+// ── ICONOS SVG POR TIPO (estilo oficial, sin texto) ────────────
+// Cada icono es un SVG minimalista trazado a mano, currentColor
+// para heredar el color del badge. viewBox 0 0 24 24.
+const TIPO_ICONOS = {
+  normal:   '<circle cx="12" cy="12" r="6" fill="none" stroke="currentColor" stroke-width="2.4"/>',
+  fire:     '<path d="M12 2c1 3-2 4-2 7a3 3 0 1 0 6 0c0-1-.5-2-1-2 1.5 2 1 4-.5 5.5C16 14 17 12 17 10c2 2 3 5 1.5 8C17 21 14.5 22 12 22 8 22 5 19 5 15c0-3 2-5 3-7 1-2 1.5-4 4-6z" fill="currentColor"/>',
+  water:    '<path d="M12 2c3 5 7 9 7 13.5A7 7 0 0 1 5 15.5C5 11 9 7 12 2z" fill="currentColor"/>',
+  electric: '<path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z" fill="currentColor"/>',
+  grass:    '<path d="M12 22V11M12 11C12 6 8 4 4 4c0 5 2.5 8.5 8 7zM12 11c0-4 3-7 8-8 0 4.5-2 8.5-8 8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
+  ice:      '<path d="M12 2v20M4.5 6.5l15 11M19.5 6.5l-15 11M12 2l-2.5 2.5M12 2l2.5 2.5M12 22l-2.5-2.5M12 22l2.5-2.5M4.5 6.5l3 .5M4.5 6.5l.5-3M19.5 6.5l-3 .5M19.5 6.5l-.5-3M4.5 17.5l3-.5M4.5 17.5l.5 3M19.5 17.5l-3-.5M19.5 17.5l-.5 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>',
+  fighting: '<path d="M7 4v7a5 5 0 0 0 10 0V4M5 8h2M17 8h2M9 20l3-5 3 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>',
+  poison:   '<path d="M12 2c4 3 7 6.5 7 11a7 7 0 1 1-14 0c0-4.5 3-8 7-11z" fill="currentColor"/><circle cx="12" cy="15" r="2.2" fill="var(--bg-tarjeta,#0a1929)"/>',
+  ground:   '<path d="M3 14h18M3 18h18M7 14V9l5-5 5 5v5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>',
+  flying:   '<path d="M2 13c4-6 9-8 12-2 2-5 6-7 8-4-1 6-6 8-9 7 2 2 2 5-1 6-1-3-3-4-5-3 1-2 0-4-2-4-1 1-2 1-3 0z" fill="currentColor"/>',
+  psychic:  '<circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="currentColor"/>',
+  bug:      '<path d="M12 8a4 4 0 0 1 4 4v5a4 4 0 0 1-8 0v-5a4 4 0 0 1 4-4zM12 8V5M9 6 7 4M15 6l2-2M8 13H4M20 13h-4M8 17l-3 2M16 17l3 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+  rock:     '<path d="M5 16 9 6h6l4 10-3 4H8z" fill="currentColor"/>',
+  ghost:    '<path d="M5 21V11a7 7 0 0 1 14 0v10l-2.5-2-2 2-2.5-2-2 2-2.5-2z" fill="currentColor"/><circle cx="9.5" cy="11" r="1.3" fill="var(--bg-tarjeta,#0a1929)"/><circle cx="14.5" cy="11" r="1.3" fill="var(--bg-tarjeta,#0a1929)"/>',
+  dragon:   '<path d="M3 11c4-2 6 1 6 3 2-5 6-7 12-6-2 2-3 4-2 6-3-1-5 0-6 2 3 0 5 1 6 4-5 1-9-1-10-5-2 1-3 3-2 6-4-2-5-6-4-10z" fill="currentColor"/>',
+  dark:     '<path d="M19 13a7 7 0 1 1-8-9 6 6 0 1 0 8 9z" fill="currentColor"/>',
+  steel:    '<path d="m12 2 8 4.5v9L12 20l-8-4.5v-9z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="11" r="2.6" fill="currentColor"/>',
+  fairy:    '<path d="M12 2c1 3 0 5-2 6 2-1 4-1 6 0-2 1-3 3-2 6-1-3-3-4-6-3 2-1 3-3 2-6 1 3 3 4 6 3-2 1-3 3-2 6" fill="currentColor"/>'
+};
+
+// ── Helper: devuelve el SVG completo de un tipo con tamaño dado
+function iconoTipo(tipo, size = 14) {
+  const path = TIPO_ICONOS[tipo] || TIPO_ICONOS.normal;
+  return `<svg class="tipo-icono" width="${size}" height="${size}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">${path}</svg>`;
+}
+
+// ── Helper: badge completo de tipo (icono + nombre), reemplaza
+//    al patrón repetido `<span class="tipo-badge tipo-X">Nombre</span>`
+//    extraClass: clases CSS adicionales | extraAttrs: atributos HTML extra (style, title)
+function badgeTipo(tipo, extraClass = '', extraAttrs = '', extraText = '') {
+  const size = extraAttrs.includes('font-size:7') ? 9 : extraAttrs.includes('font-size:8') ? 10 : 12;
+  return `<span class="tipo-badge tipo-${tipo} ${extraClass}" ${extraAttrs}>${iconoTipo(tipo, size)}<span>${TIPOS_ES[tipo] || tipo}${extraText}</span></span>`;
+}
 const estado = {
   pokemonCache: [],
   pokemonFiltrado: [],
@@ -141,7 +179,7 @@ function crearTarjetaHTML(p) {
   const num    = String(p.id).padStart(3, '0');
   const nombre = p.name.charAt(0).toUpperCase() + p.name.slice(1);
   const tipos  = p.types.map(t =>
-    `<span class="tipo-badge tipo-${t.type.name}">${TIPOS_ES[t.type.name] || t.type.name}</span>`
+    `${badgeTipo(t.type.name)}`
   ).join('');
   return `
     <div class="pokemon-tarjeta" onclick="seleccionarPokemon(${p.id})" id="tarjeta-${p.id}">
@@ -243,7 +281,7 @@ function renderizarDetalle(p, species) {
 
   // Tipos badges
   const tiposBadge = tipos.map(t =>
-    `<span class="tipo-badge tipo-${t}">${TIPOS_ES[t]||t}</span>`
+    `${badgeTipo(t)}`
   ).join('');
 
   // Stats
@@ -351,7 +389,7 @@ function renderizarEfectividad(efect) {
     <div style="margin-bottom:8px">
       <div style="font-size:9px;color:var(--texto-muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px">${etiqueta}</div>
       <div style="display:flex;flex-wrap:wrap;gap:4px">
-        ${lista.map(([t])=>`<span class="tipo-badge tipo-${t} ${cls}">${TIPOS_ES[t]}</span>`).join('')}
+        ${lista.map(([t])=>badgeTipo(t, cls)).join('')}
       </div>
     </div>`;
 
@@ -404,7 +442,13 @@ function navegarA(vista) {
     renderizarSelector();
   }
   if (vista === 'cobertura') {
-    setTimeout(renderizarCobertura, 50);
+    setTimeout(() => {
+      if (cobRivalEstado.modoActivo === 'rival') {
+        cobInicializarModoRival();
+      } else {
+        renderizarCobertura();
+      }
+    }, 50);
   }
 }
 
@@ -424,7 +468,7 @@ function renderizarSlots() {
       </div>`;
 
     const tipos = p.types.map(t =>
-      `<span class="tipo-badge tipo-${t.type.name}">${TIPOS_ES[t.type.name]||t.type.name}</span>`
+      `${badgeTipo(t.type.name)}`
     ).join('');
     const sprite = p.sprites?.other?.['official-artwork']?.front_default
       || p.sprites?.front_default || '';
@@ -481,7 +525,7 @@ function renderizarSelector() {
     const num    = String(p.id).padStart(3,'0');
     const nombre = p.name.charAt(0).toUpperCase() + p.name.slice(1);
     const tipos  = p.types.map(t =>
-      `<span class="tipo-badge tipo-${t.type.name}">${TIPOS_ES[t.type.name]||t.type.name}</span>`
+      `${badgeTipo(t.type.name)}`
     ).join('');
     const yaEsta = enEquipo.includes(p.id);
     return `
@@ -580,9 +624,7 @@ function actualizarResumen() {
   contenedor.innerHTML = Object.entries(conteo)
     .sort((a,b) => b[1]-a[1])
     .map(([t, n]) =>
-      `<span class="tipo-badge tipo-${t}" title="${n} Pokémon">
-        ${TIPOS_ES[t]||t} ${n>1?`×${n}`:''}
-      </span>`
+      `<span class="tipo-badge tipo-${t}" title="${n} Pokémon">${iconoTipo(t,12)}<span>${TIPOS_ES[t]||t} ${n>1?`×${n}`:''}</span></span>`
     ).join('');
 }
 
@@ -666,12 +708,7 @@ document.addEventListener('DOMContentLoaded', () => {
 /* ═══════════════════════════════════════════════════════════════
    MATRIZ DE DEBILIDADES
 ═══════════════════════════════════════════════════════════════ */
-
-const TODOS_TIPOS = [
-  'normal','fire','water','electric','grass','ice',
-  'fighting','poison','ground','flying','psychic','bug',
-  'rock','ghost','dragon','dark','steel','fairy'
-];
+// (TODOS_TIPOS ya está definido al inicio del archivo)
 
 function renderizarMatriz() {
   const ocupados = miEquipo.filter(Boolean);
@@ -699,7 +736,7 @@ function renderizarCabeceraEquipo(ocupados) {
       const sprite = p.sprites?.front_default || '';
       const nombre = p.name.charAt(0).toUpperCase() + p.name.slice(1);
       const tipos  = p.types.map(t =>
-        `<span class="tipo-badge tipo-${t.type.name}">${TIPOS_ES[t.type.name]||t.type.name}</span>`
+        `${badgeTipo(t.type.name)}`
       ).join('');
       return `<div class="matriz-equipo-pokemon">
         ${sprite ? `<img src="${sprite}" alt="${nombre}">` : ''}
@@ -739,7 +776,7 @@ function renderizarTablaMatriz(ocupados) {
 
     return `<tr>
       <td class="td-tipo">
-        <span class="tipo-badge tipo-${atkTipo} td-tipo-badge">${TIPOS_ES[atkTipo]||atkTipo}</span>
+        ${badgeTipo(atkTipo, "td-tipo-badge")}
       </td>
       ${celdas.map(c => c.html).join('')}
       <td class="${promedioClass}" style="font-size:10px;opacity:0.8">
@@ -802,7 +839,7 @@ function renderizarResumenMatriz(ocupados) {
         ${items.length
           ? items.sort((a,b)=>b.count-a.count).map(it => `
               <span class="resumen-badge ${clsBadge}">
-                <span class="tipo-badge tipo-${it.tipo}" style="font-size:8px;padding:1px 5px">${TIPOS_ES[it.tipo]||it.tipo}</span>
+                ${badgeTipo(it.tipo, "", 'style="font-size:8px;padding:1px 5px"')}
                 <span>${it.count}/${ocupados.length}</span>
               </span>`).join('')
           : `<span class="resumen-vacio-txt">${vacio}</span>`
@@ -898,7 +935,7 @@ function calcSeleccionarPokemon(id, lado) {
   const panel = document.getElementById(idInfo);
   const imgArt = pokemon.sprites?.other?.['official-artwork']?.front_default || pokemon.sprites?.front_default || '';
   const tipos = pokemon.types.map(t =>
-    `<span class="tipo-badge tipo-${t.type.name}">${TIPOS_ES[t.type.name] || t.type.name}</span>`
+    `${badgeTipo(t.type.name)}`
   ).join('');
   const statsRelevantes = pokemon.stats.map(s => {
     const pct = Math.min(100, Math.round(s.base_stat / 255 * 100));
@@ -1177,7 +1214,7 @@ function calcularDanio() {
 
       <!-- Movimiento -->
       <div class="calc-resultado__mov">
-        <span class="tipo-badge tipo-${tipoMov}">${TIPOS_ES[tipoMov] || tipoMov}</span>
+        ${badgeTipo(tipoMov)}
         <strong>${movNombre}</strong>
         <span class="calc-tag">${categoria === 'fisico' ? '⚔ Físico' : '✨ Especial'}</span>
         <span class="calc-tag">Pot. ${potencia}</span>
@@ -1327,7 +1364,7 @@ function anlSeleccionar(id, lado) {
   // Preview del Pokémon
   const art   = pk.sprites?.other?.['official-artwork']?.front_default || pk.sprites?.front_default || '';
   const tipos = pk.types.map(t =>
-    `<span class="tipo-badge tipo-${t.type.name}">${TIPOS_ES[t.type.name]||t.type.name}</span>`
+    `${badgeTipo(t.type.name)}`
   ).join('');
   const statsHTML = pk.stats.map(s => {
     const pct   = Math.min(100, Math.round(s.base_stat / 255 * 100));
@@ -1538,7 +1575,7 @@ function analizarBatalla() {
           ${sprA?`<img src="${sprA}" alt="${nomA}" class="anl-combate-img">`:'' }
           <span class="anl-combate-nombre">${nomA}</span>
           <div style="display:flex;gap:3px;flex-wrap:wrap;justify-content:center">
-            ${a.types.map(t=>`<span class="tipo-badge tipo-${t.type.name}">${TIPOS_ES[t.type.name]||t.type.name}</span>`).join('')}
+            ${a.types.map(t=>`${badgeTipo(t.type.name)}`).join('')}
           </div>
           <span class="anl-bst">BST ${bstA}</span>
         </div>
@@ -1551,7 +1588,7 @@ function analizarBatalla() {
           ${sprB?`<img src="${sprB}" alt="${nomB}" class="anl-combate-img">`:'' }
           <span class="anl-combate-nombre">${nomB}</span>
           <div style="display:flex;gap:3px;flex-wrap:wrap;justify-content:center">
-            ${b.types.map(t=>`<span class="tipo-badge tipo-${t.type.name}">${TIPOS_ES[t.type.name]||t.type.name}</span>`).join('')}
+            ${b.types.map(t=>`${badgeTipo(t.type.name)}`).join('')}
           </div>
           <span class="anl-bst">BST ${bstB}</span>
         </div>
@@ -1590,7 +1627,7 @@ function analizarBatalla() {
             <span style="font-size:10px;color:var(--texto-muted)">${nomA} → ${nomB}</span>
             <span class="anl-tipo-mult" style="color:${etqAvB.col}">${etqAvB.txt}</span>
             ${atkABuenos.length ? `<div style="display:flex;gap:3px;margin-top:3px">
-              ${atkABuenos.map(t=>`<span class="tipo-badge tipo-${t}" style="font-size:8px">${TIPOS_ES[t]||t}</span>`).join('')}
+              ${atkABuenos.map(t=>badgeTipo(t, "", 'style="font-size:8px"')).join('')}
             </div>` : ''}
           </div>
           <div class="anl-tipo-sep">↔</div>
@@ -1598,7 +1635,7 @@ function analizarBatalla() {
             <span style="font-size:10px;color:var(--texto-muted)">${nomB} → ${nomA}</span>
             <span class="anl-tipo-mult" style="color:${etqBvA.col}">${etqBvA.txt}</span>
             ${atkBBuenos.length ? `<div style="display:flex;gap:3px;margin-top:3px">
-              ${atkBBuenos.map(t=>`<span class="tipo-badge tipo-${t}" style="font-size:8px">${TIPOS_ES[t]||t}</span>`).join('')}
+              ${atkBBuenos.map(t=>badgeTipo(t, "", 'style="font-size:8px"')).join('')}
             </div>` : ''}
           </div>
         </div>
@@ -1621,7 +1658,7 @@ function analizarBatalla() {
           <div class="anl-seccion__titulo"><i class="ti ti-alert-triangle" style="color:#ef4444"></i> DEBILIDADES DE ${nomA}</div>
           <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">
             ${Object.entries(efBvsA).filter(([,m])=>m>=2).map(([t,m])=>
-              `<span class="tipo-badge tipo-${t}" style="font-size:9px">${TIPOS_ES[t]} ×${m}</span>`
+              badgeTipo(t, "", 'style="font-size:9px"', ` ×${m}`)
             ).join('') || '<span style="font-size:11px;color:var(--texto-muted)">Sin debilidades notables</span>'}
           </div>
         </div>
@@ -1629,7 +1666,7 @@ function analizarBatalla() {
           <div class="anl-seccion__titulo"><i class="ti ti-alert-triangle" style="color:#ef4444"></i> DEBILIDADES DE ${nomB}</div>
           <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">
             ${Object.entries(efAvsB).filter(([,m])=>m>=2).map(([t,m])=>
-              `<span class="tipo-badge tipo-${t}" style="font-size:9px">${TIPOS_ES[t]} ×${m}</span>`
+              badgeTipo(t, "", 'style="font-size:9px"', ` ×${m}`)
             ).join('') || '<span style="font-size:11px;color:var(--texto-muted)">Sin debilidades notables</span>'}
           </div>
         </div>
@@ -1641,7 +1678,7 @@ function analizarBatalla() {
           <div class="anl-seccion__titulo"><i class="ti ti-ban" style="color:#6b7280"></i> INMUNIDADES DE ${nomA}</div>
           <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">
             ${Object.entries(efBvsA).filter(([,m])=>m===0).map(([t])=>
-              `<span class="tipo-badge tipo-${t}" style="font-size:9px">${TIPOS_ES[t]}</span>`
+              badgeTipo(t, "", 'style="font-size:9px"')
             ).join('') || '<span style="font-size:11px;color:var(--texto-muted)">Sin inmunidades</span>'}
           </div>
         </div>
@@ -1649,7 +1686,7 @@ function analizarBatalla() {
           <div class="anl-seccion__titulo"><i class="ti ti-ban" style="color:#6b7280"></i> INMUNIDADES DE ${nomB}</div>
           <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">
             ${Object.entries(efAvsB).filter(([,m])=>m===0).map(([t])=>
-              `<span class="tipo-badge tipo-${t}" style="font-size:9px">${TIPOS_ES[t]}</span>`
+              badgeTipo(t, "", 'style="font-size:9px"')
             ).join('') || '<span style="font-size:11px;color:var(--texto-muted)">Sin inmunidades</span>'}
           </div>
         </div>
@@ -1875,7 +1912,7 @@ function cobRenderizarStrip(ocupados) {
       const spr = p.sprites?.front_default || '';
       const nom = p.name.charAt(0).toUpperCase() + p.name.slice(1);
       const tipos = p.types.map(t =>
-        `<span class="tipo-badge tipo-${t.type.name}" style="font-size:7px;padding:1px 5px">${TIPOS_ES[t.type.name]||t.type.name}</span>`
+        badgeTipo(t.type.name, "", 'style="font-size:7px;padding:1px 5px"')
       ).join('');
       return `<div class="cob-strip__pk">
         ${spr ? `<img src="${spr}" alt="${nom}">` : ''}
@@ -1915,7 +1952,7 @@ function cobRenderizarOfensiva(ocupados) {
   document.getElementById('cobStabGrid').innerHTML = cubiertos.length
     ? cubiertos.map(c => `
         <div class="cob-tipo-item cob-tipo-item--ok" title="${c.cubridores.join(', ')}">
-          <span class="tipo-badge tipo-${c.tipo}">${TIPOS_ES[c.tipo]||c.tipo}</span>
+          ${badgeTipo(c.tipo)}
           <span class="cob-tipo-mult">×${(c.mult).toFixed(1)}</span>
           <span class="cob-tipo-quien">${c.cubridores.slice(0,2).join(' · ')}${c.cubridores.length>2?` +${c.cubridores.length-2}`:''}</span>
         </div>`).join('')
@@ -1925,7 +1962,7 @@ function cobRenderizarOfensiva(ocupados) {
   document.getElementById('cobHuecosGrid').innerHTML = huecos.length
     ? huecos.map(h => `
         <div class="cob-tipo-item cob-tipo-item--mal">
-          <span class="tipo-badge tipo-${h.tipo}">${TIPOS_ES[h.tipo]||h.tipo}</span>
+          ${badgeTipo(h.tipo)}
           <span class="cob-tipo-mult" style="color:#ef4444">${h.mult > 0 ? '×'+h.mult.toFixed(1) : '✕'}</span>
         </div>`).join('')
     : '<span class="cob-vacio cob-vacio--ok">¡Sin huecos! Cobertura perfecta</span>';
@@ -1958,7 +1995,7 @@ function cobRenderizarDefensiva(ocupados) {
   document.getElementById('cobResGrid').innerHTML = resistencias.length
     ? resistencias.sort((a,b) => b.count-a.count).map(r => `
         <div class="cob-tipo-item cob-tipo-item--res">
-          <span class="tipo-badge tipo-${r.tipo}">${TIPOS_ES[r.tipo]||r.tipo}</span>
+          ${badgeTipo(r.tipo)}
           <span class="cob-tipo-mult" style="color:#22c55e">${r.count}/${r.total}</span>
         </div>`).join('')
     : '<span class="cob-vacio">Sin resistencias compartidas</span>';
@@ -1966,7 +2003,7 @@ function cobRenderizarDefensiva(ocupados) {
   document.getElementById('cobVulnGrid').innerHTML = vulnerabilidades.length
     ? vulnerabilidades.sort((a,b) => b.count-a.count).map(v => `
         <div class="cob-tipo-item cob-tipo-item--mal">
-          <span class="tipo-badge tipo-${v.tipo}">${TIPOS_ES[v.tipo]||v.tipo}</span>
+          ${badgeTipo(v.tipo)}
           <span class="cob-tipo-mult" style="color:#ef4444">${v.count}/${v.total}</span>
         </div>`).join('')
     : '<span class="cob-vacio cob-vacio--ok">¡Sin vulnerabilidades comunes!</span>';
@@ -2011,7 +2048,7 @@ function cobRenderizarMapa(ocupados) {
 
     return `<tr>
       <td class="cob-mapa-td-tipo">
-        <span class="tipo-badge tipo-${tipoDefensor}" style="font-size:8px;padding:1px 6px">${TIPOS_ES[tipoDefensor]||tipoDefensor}</span>
+        ${badgeTipo(tipoDefensor, "", 'style="font-size:8px;padding:1px 6px"')}
       </td>
       ${celdas.map(c => `<td class="cob-celda ${c.cls}">${c.txt}</td>`).join('')}
       <td class="cob-celda ${mejorCls}" style="font-weight:700">${mejorTxt}</td>
@@ -2069,10 +2106,10 @@ function cobRenderizarSinergia(ocupados) {
     const colorNivel = nivel === 'alta' ? '#22c55e' : nivel === 'media' ? '#facc15' : '#6b7280';
 
     const listaCubreAB = par.aCubreB.map(t =>
-      `<span class="tipo-badge tipo-${t}" style="font-size:7px;padding:1px 4px">${TIPOS_ES[t]||t}</span>`
+      `${badgeTipo(t, "", 'style="font-size:7px;padding:1px 4px"')}`
     ).join('');
     const listasCubreBA = par.bCubreA.map(t =>
-      `<span class="tipo-badge tipo-${t}" style="font-size:7px;padding:1px 4px">${TIPOS_ES[t]||t}</span>`
+      `${badgeTipo(t, "", 'style="font-size:7px;padding:1px 4px"')}`
     ).join('');
 
     return `<div class="cob-par">
@@ -2104,3 +2141,452 @@ function cobRenderizarSinergia(ocupados) {
 }
 
 // navegarA ya incluye renderizarCobertura() directamente
+
+/* ═══════════════════════════════════════════════════════════════
+   COBERTURA — MODO "VS RIVAL"
+   Comparación de combate: mi equipo (auto) vs equipo rival
+   (manual), con recomendación de selección 3 de 6.
+═══════════════════════════════════════════════════════════════ */
+
+const cobRivalEstado = {
+  equipo: [null, null, null, null, null, null],
+  modoActivo: 'mio' // 'mio' | 'rival'
+};
+
+// ── Cambiar entre modo "Mi Equipo" y "Vs Rival" ───────────────
+function cobCambiarModo(modo) {
+  cobRivalEstado.modoActivo = modo;
+
+  document.getElementById('cobToggleMio').classList.toggle('cob-toggle--activo', modo === 'mio');
+  document.getElementById('cobToggleRival').classList.toggle('cob-toggle--activo', modo === 'rival');
+  document.getElementById('cobModoMio').style.display   = modo === 'mio'   ? 'block' : 'none';
+  document.getElementById('cobModoRival').style.display = modo === 'rival' ? 'block' : 'none';
+
+  const sub = document.getElementById('cobSubtitulo');
+  const btn = document.getElementById('cobBtnActualizar');
+  if (modo === 'mio') {
+    sub.textContent = 'Cobertura ofensiva, defensiva y huecos del equipo actual';
+    btn.innerHTML = '<i class="ti ti-refresh"></i> Actualizar';
+    btn.setAttribute('onclick', 'renderizarCobertura()');
+    renderizarCobertura();
+  } else {
+    sub.textContent = 'Compara tu equipo contra el rival antes del combate clasificatorio';
+    btn.innerHTML = '<i class="ti ti-refresh"></i> Actualizar comparación';
+    btn.setAttribute('onclick', 'cobRenderizarVsRival()');
+    cobInicializarModoRival();
+  }
+}
+
+// ── Inicializar el modo rival al entrar ───────────────────────
+function cobInicializarModoRival() {
+  const misPokemon = miEquipo.filter(Boolean);
+  const sinEquipo = document.getElementById('cobRivalSinMiEquipo');
+  const contenido = document.getElementById('cobRivalContenido');
+
+  if (!misPokemon.length) {
+    sinEquipo.style.display = 'flex';
+    contenido.style.display = 'none';
+    return;
+  }
+  sinEquipo.style.display = 'none';
+  contenido.style.display = 'block';
+
+  cobRenderizarSlotsRival();
+  cobRenderizarVsRival();
+}
+
+// ── Búsqueda de Pokémon rival ──────────────────────────────────
+function cobRivalBuscar(termino) {
+  const cont = document.getElementById('cobRivalSugerencias');
+
+  if (!termino || termino.length < 2) {
+    cont.innerHTML = ''; cont.style.display = 'none'; return;
+  }
+  if (!estado.cargadoCompleto) {
+    cont.innerHTML = '<div class="calc-sug-item calc-sug-item--info">Carga la Pokédex primero</div>';
+    cont.style.display = 'block'; return;
+  }
+  // No mostrar slots llenos
+  const llenos = cobRivalEstado.equipo.filter(Boolean).length;
+  if (llenos >= 6) {
+    cont.innerHTML = '<div class="calc-sug-item calc-sug-item--info">Equipo rival completo (6/6)</div>';
+    cont.style.display = 'block'; return;
+  }
+
+  const term = termino.toLowerCase().trim();
+  const res = estado.pokemonCache
+    .filter(p => p.name.toLowerCase().includes(term) || String(p.id).includes(term))
+    .slice(0, 8);
+
+  if (!res.length) {
+    cont.innerHTML = '<div class="calc-sug-item calc-sug-item--info">Sin resultados</div>';
+    cont.style.display = 'block'; return;
+  }
+
+  cont.innerHTML = res.map(p => {
+    const nom = p.name.charAt(0).toUpperCase() + p.name.slice(1);
+    const spr = p.sprites?.front_default || '';
+    return `<div class="calc-sug-item" onclick="cobRivalAgregar(${p.id})">
+      ${spr ? `<img src="${spr}" alt="${nom}">` : ''}
+      <span class="calc-sug-num">#${String(p.id).padStart(3,'0')}</span>
+      <span>${nom}</span>
+    </div>`;
+  }).join('');
+  cont.style.display = 'block';
+}
+
+// ── Agregar Pokémon rival al primer slot libre ────────────────
+function cobRivalAgregar(id) {
+  const pk = estado.pokemonCache.find(p => p.id === id);
+  if (!pk) return;
+
+  const slotLibre = cobRivalEstado.equipo.findIndex(s => s === null);
+  if (slotLibre === -1) {
+    mostrarToast('⚠️ El equipo rival ya tiene 6 Pokémon', 'err');
+    return;
+  }
+
+  cobRivalEstado.equipo[slotLibre] = pk;
+
+  document.getElementById('cobRivalInput').value = '';
+  document.getElementById('cobRivalSugerencias').style.display = 'none';
+
+  cobRenderizarSlotsRival();
+  cobRenderizarVsRival();
+  mostrarToast(`✅ ${pk.name.charAt(0).toUpperCase()+pk.name.slice(1)} añadido al rival`, 'ok');
+}
+
+// ── Quitar Pokémon rival de un slot ───────────────────────────
+function cobRivalQuitar(idx) {
+  cobRivalEstado.equipo[idx] = null;
+  cobRenderizarSlotsRival();
+  cobRenderizarVsRival();
+}
+
+// ── Limpiar todo el equipo rival ──────────────────────────────
+function cobLimpiarRival() {
+  cobRivalEstado.equipo = [null, null, null, null, null, null];
+  cobRenderizarSlotsRival();
+  cobRenderizarVsRival();
+  mostrarToast('🔄 Equipo rival limpiado', 'ok');
+}
+
+// ── Renderizar los 6 slots del rival ───────────────────────────
+function cobRenderizarSlotsRival() {
+  const cont = document.getElementById('cobRivalSlots');
+  const ocupados = cobRivalEstado.equipo.filter(Boolean).length;
+  document.getElementById('cobRivalContador').textContent = `${ocupados}/6`;
+
+  cont.innerHTML = cobRivalEstado.equipo.map((pk, idx) => {
+    if (!pk) {
+      return `<div class="cob-rival-slot cob-rival-slot--vacio">
+        <i class="ti ti-plus"></i>
+      </div>`;
+    }
+    const nom = pk.name.charAt(0).toUpperCase() + pk.name.slice(1);
+    const spr = pk.sprites?.front_default || '';
+    const tipos = pk.types.map(t => badgeTipo(t.type.name, '', 'style="font-size:7px;padding:1px 4px"')).join('');
+    return `<div class="cob-rival-slot cob-rival-slot--lleno">
+      <button class="cob-rival-slot__quitar" onclick="cobRivalQuitar(${idx})" title="Quitar">
+        <i class="ti ti-x"></i>
+      </button>
+      ${spr ? `<img src="${spr}" alt="${nom}">` : ''}
+      <span>${nom}</span>
+      <div class="cob-rival-slot__tipos">${tipos}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Velocidad base de un Pokémon ──────────────────────────────
+function cobVelBase(pk) {
+  return pk.stats.find(s => s.stat.name === 'speed')?.base_stat ?? 50;
+}
+
+// ── Calcular puntaje de matchup de UN Pokémon mío contra
+//    TODO el equipo rival (para la recomendación 3v3) ──────────
+function cobPuntajeMatchup(miPk, rivales) {
+  let puntos = 0;
+  const miVel = cobVelBase(miPk);
+
+  rivales.forEach(riv => {
+    // Cuánto daño puedo hacerle yo (con STAB)
+    const miAtaque = cobMultOfensivo(miPk, null, riv); // ver función abajo, soporta dual type
+    // Cuánto daño me puede hacer él
+    const suAtaque = cobMultOfensivo(riv, null, miPk);
+
+    if (miAtaque >= 3)      puntos += 2;   // súper efectivo con STAB
+    else if (miAtaque >= 2.25) puntos += 1; // STAB neutral fuerte
+    if (suAtaque >= 3)      puntos -= 2;   // me golpea fuerte
+    else if (suAtaque === 0) puntos += 1;  // soy inmune a su STAB
+
+    // Velocidad: pequeño bonus si soy más rápido
+    if (miVel > cobVelBase(riv)) puntos += 0.5;
+  });
+
+  return puntos;
+}
+
+// ── Multiplicador ofensivo de un Pokémon completo (con sus 1-2
+//    tipos y STAB) contra OTRO Pokémon completo (con sus 1-2
+//    tipos de defensa). Devuelve el mejor multiplicador posible. ─
+function cobMultOfensivoVs(atacante, defensor) {
+  const tiposAtk = atacante.types.map(t => t.type.name);
+  const tiposDef = defensor.types.map(t => t.type.name);
+  let mejor = 0;
+  tiposAtk.forEach(tAtk => {
+    let mult = 1;
+    tiposDef.forEach(tDef => {
+      mult *= (MULT[tAtk]?.[tDef] ?? 1);
+    });
+    const conStab = mult * 1.5;
+    if (conStab > mejor) mejor = conStab;
+  });
+  return mejor;
+}
+
+// Sobrescribimos cobMultOfensivo para aceptar firma flexible
+// (mantiene compatibilidad con el modo "Mi Equipo" que la llama
+//  con un tipo simple, y añade soporte para Pokémon completo)
+function cobMultOfensivo(atacanteOTipo, tipoDefensorSimple, defensorPokemon) {
+  // Uso original: cobMultOfensivo(pokemon, tipoDefensorString)
+  if (typeof tipoDefensorSimple === 'string') {
+    const tiposPk = atacanteOTipo.types.map(t => t.type.name);
+    let mejor = 0;
+    tiposPk.forEach(tipoAtk => {
+      const m = (MULT[tipoAtk]?.[tipoDefensorSimple] ?? 1) * 1.5;
+      if (m > mejor) mejor = m;
+    });
+    return mejor;
+  }
+  // Uso nuevo: cobMultOfensivo(pokemonAtacante, null, pokemonDefensor)
+  return cobMultOfensivoVs(atacanteOTipo, defensorPokemon);
+}
+
+// ── Renderizado principal del modo Vs Rival ────────────────────
+function cobRenderizarVsRival() {
+  const mios   = miEquipo.filter(Boolean);
+  const rivales = cobRivalEstado.equipo.filter(Boolean);
+
+  const resultadoEl = document.getElementById('cobRivalResultado');
+  if (!rivales.length) {
+    resultadoEl.style.display = 'none';
+    return;
+  }
+  resultadoEl.style.display = 'block';
+
+  cobVsRenderizarComparacion(mios, rivales);
+  cobVsRenderizarVentajas(mios, rivales);
+  cobVsRenderizarVelocidad(mios, rivales);
+  cobVsRenderizarMatriz(mios, rivales);
+  cobVsRenderizarRecomendados(mios, rivales);
+}
+
+// ── Comparación visual de equipos (sprites lado a lado) ───────
+function cobVsRenderizarComparacion(mios, rivales) {
+  const cont = document.getElementById('cobVsEquipos');
+  const renderLado = (lista, esRival) => lista.map(pk => {
+    const nom = pk.name.charAt(0).toUpperCase() + pk.name.slice(1);
+    const spr = pk.sprites?.front_default || '';
+    const tipos = pk.types.map(t => badgeTipo(t.type.name, '', 'style="font-size:7px;padding:1px 4px"')).join('');
+    return `<div class="cob-vs-pk ${esRival ? 'cob-vs-pk--rival' : 'cob-vs-pk--mio'}">
+      ${spr ? `<img src="${spr}" alt="${nom}">` : ''}
+      <span>${nom}</span>
+      <div class="cob-vs-pk__tipos">${tipos}</div>
+    </div>`;
+  }).join('');
+
+  cont.innerHTML = `
+    <div class="cob-vs-lado">
+      <div class="cob-vs-lado__titulo" style="color:#22c55e"><i class="ti ti-shield"></i> TU EQUIPO (${mios.length})</div>
+      <div class="cob-vs-lado__grid">${renderLado(mios, false)}</div>
+    </div>
+    <div class="cob-vs-divisor"><i class="ti ti-swords"></i></div>
+    <div class="cob-vs-lado">
+      <div class="cob-vs-lado__titulo" style="color:#ef4444"><i class="ti ti-swords"></i> EQUIPO RIVAL (${rivales.length})</div>
+      <div class="cob-vs-lado__grid">${renderLado(rivales, true)}</div>
+    </div>`;
+}
+
+// ── Ventajas mías vs rival, y del rival vs mí ──────────────────
+function cobVsRenderizarVentajas(mios, rivales) {
+  // Mis ventajas: tipos rivales que algún Pokémon mío golpea ×2+ con STAB
+  const misVentajas = [];
+  TODOS_TIPOS.forEach(tipoRival => {
+    const rivalesDeEseTipo = rivales.filter(r => r.types.some(t => t.type.name === tipoRival));
+    if (!rivalesDeEseTipo.length) return;
+    let mejor = 0, quien = null;
+    mios.forEach(miPk => {
+      const m = cobMultOfensivo(miPk, tipoRival);
+      if (m > mejor) { mejor = m; quien = miPk; }
+    });
+    if (mejor >= 3) {
+      misVentajas.push({ tipo: tipoRival, mult: mejor, quien: quien.name, afecta: rivalesDeEseTipo.map(r=>r.name) });
+    }
+  });
+
+  // Ventajas del rival: tipos míos que algún rival golpea ×2+ con STAB
+  const ventajasRival = [];
+  TODOS_TIPOS.forEach(tipoMio => {
+    const miosDeEseTipo = mios.filter(m => m.types.some(t => t.type.name === tipoMio));
+    if (!miosDeEseTipo.length) return;
+    let mejor = 0, quien = null;
+    rivales.forEach(rivPk => {
+      const m = cobMultOfensivo(rivPk, tipoMio);
+      if (m > mejor) { mejor = m; quien = rivPk; }
+    });
+    if (mejor >= 3) {
+      ventajasRival.push({ tipo: tipoMio, mult: mejor, quien: quien.name, afecta: miosDeEseTipo.map(m=>m.name) });
+    }
+  });
+
+  // Mis resistencias clave: tipos rivales que mi equipo resiste/inmune
+  const misResistencias = [];
+  const tiposRivalesUnicos = [...new Set(rivales.flatMap(r => r.types.map(t => t.type.name)))];
+  tiposRivalesUnicos.forEach(tipoRival => {
+    const queLoResisten = mios.filter(m => calcularMultiplicador(tipoRival, m.types.map(t=>t.type.name)) < 1);
+    if (queLoResisten.length) {
+      misResistencias.push({ tipo: tipoRival, count: queLoResisten.length, quienes: queLoResisten.map(m=>m.name) });
+    }
+  });
+
+  const nombreCap = n => n.charAt(0).toUpperCase() + n.slice(1);
+
+  document.getElementById('cobMisVentajas').innerHTML = misVentajas.length
+    ? misVentajas.map(v => `
+      <div class="cob-tipo-item cob-tipo-item--ok" title="${v.afecta.map(nombreCap).join(', ')}">
+        ${badgeTipo(v.tipo)}
+        <span class="cob-tipo-quien">${nombreCap(v.quien)} ×${v.mult.toFixed(1)}</span>
+      </div>`).join('')
+    : '<span class="cob-vacio">Sin ventajas claras detectadas todavía</span>';
+
+  document.getElementById('cobVentajasRival').innerHTML = ventajasRival.length
+    ? ventajasRival.map(v => `
+      <div class="cob-tipo-item cob-tipo-item--mal" title="Afecta a: ${v.afecta.map(nombreCap).join(', ')}">
+        ${badgeTipo(v.tipo)}
+        <span class="cob-tipo-quien" style="color:#fca5a5">${nombreCap(v.quien)} ×${v.mult.toFixed(1)}</span>
+      </div>`).join('')
+    : '<span class="cob-vacio cob-vacio--ok">El rival no tiene ventajas claras sobre ti</span>';
+
+  document.getElementById('cobMisResistencias').innerHTML = misResistencias.length
+    ? misResistencias.map(r => `
+      <div class="cob-tipo-item cob-tipo-item--res" title="${r.quienes.map(nombreCap).join(', ')}">
+        ${badgeTipo(r.tipo)}
+        <span class="cob-tipo-quien">${r.count} Pokémon</span>
+      </div>`).join('')
+    : '<span class="cob-vacio">Sin resistencias clave detectadas</span>';
+}
+
+// ── Comparación de velocidad entre ambos equipos ──────────────
+function cobVsRenderizarVelocidad(mios, rivales) {
+  const cont = document.getElementById('cobVelComparacion');
+  const nombreCap = n => n.charAt(0).toUpperCase() + n.slice(1);
+
+  const miosOrdenados = [...mios].sort((a,b) => cobVelBase(b) - cobVelBase(a));
+  const rivalesOrdenados = [...rivales].sort((a,b) => cobVelBase(b) - cobVelBase(a));
+
+  const miMasRapido = miosOrdenados[0];
+  const rivalMasRapido = rivalesOrdenados[0];
+  const yoGanoVelocidad = cobVelBase(miMasRapido) > cobVelBase(rivalMasRapido);
+
+  cont.innerHTML = `
+    <div class="cob-vel-resumen">
+      <div class="cob-vel-resumen__lado">
+        <span style="font-size:9px;color:var(--texto-muted)">Tu más rápido</span>
+        <strong style="color:${yoGanoVelocidad?'#22c55e':'#fff'}">${nombreCap(miMasRapido.name)}</strong>
+        <span class="cob-vel-num">${cobVelBase(miMasRapido)}</span>
+      </div>
+      <i class="ti ${yoGanoVelocidad ? 'ti-chevron-left' : 'ti-chevron-right'}" style="color:${yoGanoVelocidad?'#22c55e':'#ef4444'};font-size:18px"></i>
+      <div class="cob-vel-resumen__lado">
+        <span style="font-size:9px;color:var(--texto-muted)">Rival más rápido</span>
+        <strong style="color:${!yoGanoVelocidad?'#ef4444':'#fff'}">${nombreCap(rivalMasRapido.name)}</strong>
+        <span class="cob-vel-num">${cobVelBase(rivalMasRapido)}</span>
+      </div>
+    </div>
+    <div class="cob-vel-lista">
+      ${miosOrdenados.map(p => `<div class="cob-vel-item"><span>${nombreCap(p.name)}</span><div class="cob-vel-barra"><div style="width:${Math.min(100, cobVelBase(p)/200*100)}%;background:#22c55e"></div></div><span>${cobVelBase(p)}</span></div>`).join('')}
+      <div class="cob-vel-sep"></div>
+      ${rivalesOrdenados.map(p => `<div class="cob-vel-item"><span>${nombreCap(p.name)}</span><div class="cob-vel-barra"><div style="width:${Math.min(100, cobVelBase(p)/200*100)}%;background:#ef4444"></div></div><span>${cobVelBase(p)}</span></div>`).join('')}
+    </div>`;
+}
+
+// ── Matriz Pokémon vs Pokémon (mejor multiplicador con STAB) ──
+function cobVsRenderizarMatriz(mios, rivales) {
+  const tabla = document.getElementById('cobMatrizVs');
+  const nombreCap = n => n.charAt(0).toUpperCase() + n.slice(1);
+
+  const thead = `<thead><tr>
+    <th class="cob-mapa-th cob-mapa-th--tipo">Tú \\ Rival</th>
+    ${rivales.map(r => `<th class="cob-mapa-th">${nombreCap(r.name)}</th>`).join('')}
+  </tr></thead>`;
+
+  const filas = mios.map(miPk => {
+    const celdas = rivales.map(rivPk => {
+      const m = cobMultOfensivo(miPk, null, rivPk);
+      let cls = 'cob-celda--neutro', txt = '—';
+      if (m >= 4.5)       { cls = 'cob-celda--x4';  txt = '×4'; }
+      else if (m >= 3)    { cls = 'cob-celda--x2';  txt = '×2'; }
+      else if (m >= 2.25) { cls = 'cob-celda--x15'; txt = '×1.5'; }
+      else if (m > 0 && m < 1.5) { cls = 'cob-celda--x05'; txt = '½'; }
+      else if (m === 0)   { cls = 'cob-celda--x0';  txt = '✕'; }
+      return `<td class="cob-celda ${cls}">${txt}</td>`;
+    }).join('');
+    return `<tr>
+      <td class="cob-mapa-td-tipo">${nombreCap(miPk.name)}</td>
+      ${celdas}
+    </tr>`;
+  }).join('');
+
+  tabla.innerHTML = `${thead}<tbody>${filas}</tbody>`;
+}
+
+// ── Selección recomendada de 3 Pokémon para el combate ────────
+function cobVsRenderizarRecomendados(mios, rivales) {
+  const cont = document.getElementById('cobRecomendadosGrid');
+  const nombreCap = n => n.charAt(0).toUpperCase() + n.slice(1);
+
+  // Calcular puntaje de cada Pokémon mío contra el equipo rival completo
+  const puntuados = mios.map(pk => ({
+    pk,
+    puntaje: cobPuntajeMatchup(pk, rivales)
+  })).sort((a,b) => b.puntaje - a.puntaje);
+
+  const top3 = puntuados.slice(0, 3);
+  const resto = puntuados.slice(3);
+
+  const renderTarjeta = (item, posicion) => {
+    const { pk, puntaje } = item;
+    const spr = pk.sprites?.other?.['official-artwork']?.front_default || pk.sprites?.front_default || '';
+    const tipos = pk.types.map(t => badgeTipo(t.type.name, '', 'style="font-size:8px"')).join('');
+    const color = puntaje >= 3 ? '#22c55e' : puntaje >= 0 ? '#facc15' : '#ef4444';
+
+    // Razón principal: mejor matchup individual contra el rival
+    let mejorVictima = null, mejorMult = 0;
+    rivales.forEach(riv => {
+      const m = cobMultOfensivo(pk, null, riv);
+      if (m > mejorMult) { mejorMult = m; mejorVictima = riv; }
+    });
+    const razon = mejorMult >= 3
+      ? `Golpea súper efectivo a ${nombreCap(mejorVictima.name)} (×${mejorMult.toFixed(1)})`
+      : 'Buen balance defensivo frente al equipo rival';
+
+    return `<div class="cob-recom-card" style="border-color:${color}40">
+      ${posicion ? `<div class="cob-recom-card__rank" style="background:${color}">${posicion}</div>` : ''}
+      ${spr ? `<img src="${spr}" alt="${pk.name}">` : ''}
+      <div class="cob-recom-card__nombre">${nombreCap(pk.name)}</div>
+      <div class="cob-recom-card__tipos">${tipos}</div>
+      <div class="cob-recom-card__puntaje" style="color:${color}">Puntaje: ${puntaje.toFixed(1)}</div>
+      <div class="cob-recom-card__razon">${razon}</div>
+    </div>`;
+  };
+
+  cont.innerHTML = `
+    <div class="cob-recom-titulares">
+      ${top3.map((item, i) => renderTarjeta(item, i+1)).join('')}
+    </div>
+    ${resto.length ? `
+      <div class="cob-recom-suplentes-label">Suplentes (no recomendados como primera opción)</div>
+      <div class="cob-recom-suplentes">
+        ${resto.map(item => renderTarjeta(item, null)).join('')}
+      </div>` : ''}
+  `;
+}
