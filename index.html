@@ -299,113 +299,238 @@
       <div class="vista-header">
         <div>
           <h2 class="vista-header__titulo"><i class="ti ti-target"></i> Analizador de Cobertura</h2>
-          <p class="vista-header__sub">Cobertura ofensiva, defensiva y huecos del equipo actual</p>
+          <p class="vista-header__sub" id="cobSubtitulo">Cobertura ofensiva, defensiva y huecos del equipo actual</p>
         </div>
         <div class="vista-header__acciones">
           <button class="btn-accion btn-accion--secundario" onclick="navegarA('equipo')">
             <i class="ti ti-sword"></i> Editar equipo
           </button>
-          <button class="btn-accion btn-accion--primario" onclick="renderizarCobertura()">
+          <button class="btn-accion btn-accion--primario" id="cobBtnActualizar" onclick="renderizarCobertura()">
             <i class="ti ti-refresh"></i> Actualizar
           </button>
         </div>
       </div>
 
-      <div class="cob-sin-equipo" id="cobSinEquipo">
-        <i class="ti ti-target" style="font-size:48px;color:#0891b2;opacity:.4"></i>
-        <h3>Sin equipo configurado</h3>
-        <p>Ve al <strong>Constructor de Equipo</strong> y añade al menos un Pokémon para analizar la cobertura.</p>
-        <button class="btn-accion btn-accion--primario" onclick="navegarA('equipo')">
-          <i class="ti ti-sword"></i> Ir al Constructor
+      <!-- Toggle de modo -->
+      <div class="cob-toggle-wrap">
+        <button class="cob-toggle cob-toggle--activo" id="cobToggleMio" onclick="cobCambiarModo('mio')">
+          <i class="ti ti-shield"></i> Mi Equipo
+        </button>
+        <button class="cob-toggle" id="cobToggleRival" onclick="cobCambiarModo('rival')">
+          <i class="ti ti-swords"></i> Vs Rival
         </button>
       </div>
 
-      <div class="cob-contenido" id="cobContenido" style="display:none">
+      <!-- ═══ MODO: MI EQUIPO (análisis individual) ═══ -->
+      <div id="cobModoMio">
+        <div class="cob-sin-equipo" id="cobSinEquipo">
+          <i class="ti ti-target" style="font-size:48px;color:#0891b2;opacity:.4"></i>
+          <h3>Sin equipo configurado</h3>
+          <p>Ve al <strong>Constructor de Equipo</strong> y añade al menos un Pokémon para analizar la cobertura.</p>
+          <button class="btn-accion btn-accion--primario" onclick="navegarA('equipo')">
+            <i class="ti ti-sword"></i> Ir al Constructor
+          </button>
+        </div>
 
-        <div class="cob-equipo-strip" id="cobEquipoStrip"></div>
+        <div class="cob-contenido" id="cobContenido" style="display:none">
 
-        <div class="cob-grid">
-          <div class="cob-panel">
-            <div class="cob-panel__titulo">
-              <i class="ti ti-sword" style="color:#f97316"></i>
-              COBERTURA OFENSIVA (STAB)
-              <span class="cob-badge" id="cobStabScore"></span>
+          <div class="cob-equipo-strip" id="cobEquipoStrip"></div>
+
+          <div class="cob-grid">
+            <div class="cob-panel">
+              <div class="cob-panel__titulo">
+                <i class="ti ti-sword" style="color:#f97316"></i>
+                COBERTURA OFENSIVA (STAB)
+                <span class="cob-badge" id="cobStabScore"></span>
+              </div>
+              <p class="cob-panel__sub">Tipos que tu equipo puede golpear con STAB super efectivo</p>
+              <div class="cob-tipos-grid" id="cobStabGrid"></div>
             </div>
-            <p class="cob-panel__sub">Tipos que tu equipo puede golpear con STAB super efectivo</p>
-            <div class="cob-tipos-grid" id="cobStabGrid"></div>
-          </div>
 
-          <div class="cob-panel">
-            <div class="cob-panel__titulo">
-              <i class="ti ti-alert-triangle" style="color:#ef4444"></i>
-              HUECOS OFENSIVOS
-              <span class="cob-badge cob-badge--mal" id="cobHuecosScore"></span>
+            <div class="cob-panel">
+              <div class="cob-panel__titulo">
+                <i class="ti ti-alert-triangle" style="color:#ef4444"></i>
+                HUECOS OFENSIVOS
+                <span class="cob-badge cob-badge--mal" id="cobHuecosScore"></span>
+              </div>
+              <p class="cob-panel__sub">Tipos que ningún Pokémon cubre con STAB super efectivo</p>
+              <div class="cob-tipos-grid" id="cobHuecosGrid"></div>
             </div>
-            <p class="cob-panel__sub">Tipos que ningún Pokémon cubre con STAB super efectivo</p>
-            <div class="cob-tipos-grid" id="cobHuecosGrid"></div>
-          </div>
 
-          <div class="cob-panel">
-            <div class="cob-panel__titulo">
-              <i class="ti ti-shield-check" style="color:#22c55e"></i>
-              RESISTENCIAS DEL EQUIPO
-              <span class="cob-badge cob-badge--bien" id="cobResScore"></span>
+            <div class="cob-panel">
+              <div class="cob-panel__titulo">
+                <i class="ti ti-shield-check" style="color:#22c55e"></i>
+                RESISTENCIAS DEL EQUIPO
+                <span class="cob-badge cob-badge--bien" id="cobResScore"></span>
+              </div>
+              <p class="cob-panel__sub">Tipos que al menos la mitad del equipo resiste o es inmune</p>
+              <div class="cob-tipos-grid" id="cobResGrid"></div>
             </div>
-            <p class="cob-panel__sub">Tipos que al menos la mitad del equipo resiste o es inmune</p>
-            <div class="cob-tipos-grid" id="cobResGrid"></div>
-          </div>
 
-          <div class="cob-panel">
-            <div class="cob-panel__titulo">
-              <i class="ti ti-skull" style="color:#ef4444"></i>
-              VULNERABILIDADES COMUNES
-              <span class="cob-badge cob-badge--mal" id="cobVulnScore"></span>
+            <div class="cob-panel">
+              <div class="cob-panel__titulo">
+                <i class="ti ti-skull" style="color:#ef4444"></i>
+                VULNERABILIDADES COMUNES
+                <span class="cob-badge cob-badge--mal" id="cobVulnScore"></span>
+              </div>
+              <p class="cob-panel__sub">Tipos que golpean super efectivo a la mayoria del equipo</p>
+              <div class="cob-tipos-grid" id="cobVulnGrid"></div>
             </div>
-            <p class="cob-panel__sub">Tipos que golpean super efectivo a la mayoria del equipo</p>
-            <div class="cob-tipos-grid" id="cobVulnGrid"></div>
           </div>
-        </div>
 
-        <div class="cob-panel cob-panel--full">
-          <div class="cob-panel__titulo">
-            <i class="ti ti-table" style="color:#22d3ee"></i>
-            MAPA COMPLETO DE COBERTURA OFENSIVA
-            <span style="font-size:9px;color:var(--texto-muted);margin-left:auto">Equipo vs los 18 tipos</span>
+          <div class="cob-panel cob-panel--full">
+            <div class="cob-panel__titulo">
+              <i class="ti ti-table" style="color:#22d3ee"></i>
+              MAPA COMPLETO DE COBERTURA OFENSIVA
+              <span style="font-size:9px;color:var(--texto-muted);margin-left:auto">Equipo vs los 18 tipos</span>
+            </div>
+            <p class="cob-panel__sub">Multiplicador de cada Pokémon atacando a cada tipo (con STAB)</p>
+            <div class="cob-mapa-scroll">
+              <table class="cob-mapa-tabla" id="cobMapaTabla"></table>
+            </div>
           </div>
-          <p class="cob-panel__sub">Multiplicador de cada Pokémon atacando a cada tipo (con STAB)</p>
-          <div class="cob-mapa-scroll">
-            <table class="cob-mapa-tabla" id="cobMapaTabla"></table>
-          </div>
-        </div>
 
-        <!-- Puntuación global -->
-        <div class="cob-panel cob-panel--full cob-panel--scores">
-          <div class="cob-panel__titulo">
-            <i class="ti ti-trophy" style="color:#facc15"></i>
-            PUNTUACIÓN DEL EQUIPO
+          <!-- Puntuación global -->
+          <div class="cob-panel cob-panel--full cob-panel--scores">
+            <div class="cob-panel__titulo">
+              <i class="ti ti-trophy" style="color:#facc15"></i>
+              PUNTUACIÓN DEL EQUIPO
+            </div>
+            <div class="cob-scores-wrap" id="cobPuntuacion"></div>
           </div>
-          <div class="cob-scores-wrap" id="cobPuntuacion"></div>
-        </div>
 
-        <!-- Recomendaciones -->
-        <div class="cob-panel cob-panel--full">
-          <div class="cob-panel__titulo">
-            <i class="ti ti-bulb" style="color:#facc15"></i>
-            RECOMENDACIONES
+          <!-- Recomendaciones -->
+          <div class="cob-panel cob-panel--full">
+            <div class="cob-panel__titulo">
+              <i class="ti ti-bulb" style="color:#facc15"></i>
+              RECOMENDACIONES
+            </div>
+            <div class="cob-recomendaciones" id="cobRecomendaciones"></div>
           </div>
-          <div class="cob-recomendaciones" id="cobRecomendaciones"></div>
-        </div>
 
-        <!-- Sinergia -->
-        <div class="cob-panel cob-panel--full">
-          <div class="cob-panel__titulo">
-            <i class="ti ti-arrows-shuffle" style="color:#a78bfa"></i>
-            SINERGIA DEL EQUIPO
+          <!-- Sinergia -->
+          <div class="cob-panel cob-panel--full">
+            <div class="cob-panel__titulo">
+              <i class="ti ti-arrows-shuffle" style="color:#a78bfa"></i>
+              SINERGIA DEL EQUIPO
+            </div>
+            <div class="cob-sinergia-grid" id="cobSinergiaGrid"></div>
           </div>
-          <div class="cob-sinergia-grid" id="cobSinergiaGrid"></div>
-        </div>
 
+        </div>
       </div>
+
+      <!-- ═══ MODO: VS RIVAL (comparación de combate) ═══ -->
+      <div id="cobModoRival" style="display:none">
+
+        <!-- Sin mi equipo -->
+        <div class="cob-sin-equipo" id="cobRivalSinMiEquipo">
+          <i class="ti ti-swords" style="font-size:48px;color:#0891b2;opacity:.4"></i>
+          <h3>Primero configura tu equipo</h3>
+          <p>Ve al <strong>Constructor de Equipo</strong> y añade al menos un Pokémon antes de comparar contra un rival.</p>
+          <button class="btn-accion btn-accion--primario" onclick="navegarA('equipo')">
+            <i class="ti ti-sword"></i> Ir al Constructor
+          </button>
+        </div>
+
+        <!-- Contenido del modo rival -->
+        <div id="cobRivalContenido" style="display:none">
+
+          <!-- Selector del equipo rival -->
+          <div class="cob-rival-selector">
+            <div class="cob-rival-selector__header">
+              <i class="ti ti-swords" style="color:#ef4444"></i>
+              <span>EQUIPO RIVAL</span>
+              <span class="cob-rival-contador" id="cobRivalContador">0/6</span>
+              <button class="btn-accion btn-accion--secundario" style="margin-left:auto;padding:5px 10px;font-size:10px" onclick="cobLimpiarRival()">
+                <i class="ti ti-trash"></i> Limpiar
+              </button>
+            </div>
+            <div class="cob-rival-slots" id="cobRivalSlots"></div>
+            <div class="cob-rival-buscador">
+              <div class="buscador">
+                <i class="ti ti-search"></i>
+                <input type="text" id="cobRivalInput" placeholder="Buscar Pokémon del rival..." oninput="cobRivalBuscar(this.value)" autocomplete="off">
+              </div>
+              <div class="calc-sugerencias" id="cobRivalSugerencias"></div>
+            </div>
+          </div>
+
+          <!-- Resultado de la comparación (se llena cuando hay al menos 1 rival) -->
+          <div id="cobRivalResultado" style="display:none">
+
+            <!-- Recomendación de selección 3v3 -->
+            <div class="cob-panel cob-panel--full cob-panel--recomendado">
+              <div class="cob-panel__titulo">
+                <i class="ti ti-trophy" style="color:#facc15"></i>
+                SELECCIÓN RECOMENDADA PARA EL COMBATE (3 de 6)
+              </div>
+              <p class="cob-panel__sub">Basado en ventajas de tipo, resistencias y velocidad frente al equipo rival detectado</p>
+              <div class="cob-recomendados-grid" id="cobRecomendadosGrid"></div>
+            </div>
+
+            <!-- Comparación visual de equipos -->
+            <div class="cob-panel cob-panel--full">
+              <div class="cob-panel__titulo">
+                <i class="ti ti-swords" style="color:#a78bfa"></i>
+                COMPARACIÓN DE EQUIPOS
+              </div>
+              <div class="cob-vs-equipos" id="cobVsEquipos"></div>
+            </div>
+
+            <!-- Cobertura ofensiva/defensiva lado a lado -->
+            <div class="cob-grid cob-grid--vs">
+              <div class="cob-panel">
+                <div class="cob-panel__titulo">
+                  <i class="ti ti-sword" style="color:#f97316"></i>
+                  TUS VENTAJAS OFENSIVAS
+                </div>
+                <p class="cob-panel__sub">Tipos tuyos que golpean super efectivo a Pokémon del rival</p>
+                <div class="cob-tipos-grid" id="cobMisVentajas"></div>
+              </div>
+              <div class="cob-panel">
+                <div class="cob-panel__titulo">
+                  <i class="ti ti-shield-exclamation" style="color:#ef4444"></i>
+                  VENTAJAS DEL RIVAL
+                </div>
+                <p class="cob-panel__sub">Tipos del rival que golpean super efectivo a tu equipo</p>
+                <div class="cob-tipos-grid" id="cobVentajasRival"></div>
+              </div>
+              <div class="cob-panel">
+                <div class="cob-panel__titulo">
+                  <i class="ti ti-shield-check" style="color:#22c55e"></i>
+                  TUS RESISTENCIAS CLAVE
+                </div>
+                <p class="cob-panel__sub">Tipos del rival que tu equipo resiste o es inmune</p>
+                <div class="cob-tipos-grid" id="cobMisResistencias"></div>
+              </div>
+              <div class="cob-panel">
+                <div class="cob-panel__titulo">
+                  <i class="ti ti-bolt" style="color:#facc15"></i>
+                  COMPARACIÓN DE VELOCIDAD
+                </div>
+                <p class="cob-panel__sub">Velocidad base: quién suele ir primero</p>
+                <div class="cob-vel-comparacion" id="cobVelComparacion"></div>
+              </div>
+            </div>
+
+            <!-- Matriz Pokémon vs Pokémon -->
+            <div class="cob-panel cob-panel--full">
+              <div class="cob-panel__titulo">
+                <i class="ti ti-table" style="color:#22d3ee"></i>
+                MATRIZ DE ENFRENTAMIENTOS (Tu equipo vs Rival)
+                <span style="font-size:9px;color:var(--texto-muted);margin-left:auto">Mejor multiplicador ofensivo con STAB</span>
+              </div>
+              <div class="cob-mapa-scroll">
+                <table class="cob-mapa-tabla" id="cobMatrizVs"></table>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
     </section>
     <!-- ══ MATRIZ DE DEBILIDADES ══ -->
     <section class="vista" id="vista-matriz">
