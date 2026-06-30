@@ -69,19 +69,9 @@ const estado = {
 };
 
 // ── NAVEGACIÓN ────────────────────────────────────────────────
-function navegarA(vista) {
-  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('activo'));
-  const nav = document.querySelector(`[data-vista="${vista}"]`);
-  if (nav) nav.classList.add('activo');
-  document.querySelectorAll('.vista').forEach(v => v.classList.remove('activa'));
-  const el = document.getElementById(`vista-${vista}`);
-  if (el) el.classList.add('activa');
-  if (vista === 'pokedex' && !estado.cargadoCompleto && !estado.cargando) {
-    cargarTodosLosPokemon();
-  }
-  // Activar módulos que necesitan renderizado al entrar
-  if (vista === 'cobertura') setTimeout(renderizarCobertura, 50);
-}
+// (función navegarA completa y consolidada definida más abajo,
+//  junto al módulo de Constructor de Equipo, donde incluye
+//  todos los casos: pokedex, equipo y cobertura)
 
 // ── MODO OSCURO ───────────────────────────────────────────────
 function toggleModo() {
@@ -395,9 +385,8 @@ let equipoFiltroGen = '';
 let equipoBusqTermino = '';
 
 // ── Inicializar el Constructor cuando se navega a él ─────────
-const _navegarAOriginal = navegarA;
-// Override: cuando se abre equipo, sincronizar selector
-const _navOriginal = navegarA;
+// (la función navegarA central ya vive arriba; aquí solo se
+//  documenta que esta sección depende de ella)
 
 function navegarA(vista) {
   document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('activo'));
@@ -413,6 +402,9 @@ function navegarA(vista) {
   if (vista === 'equipo') {
     renderizarSlots();
     renderizarSelector();
+  }
+  if (vista === 'cobertura') {
+    setTimeout(renderizarCobertura, 50);
   }
 }
 
