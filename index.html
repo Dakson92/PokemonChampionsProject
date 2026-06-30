@@ -294,9 +294,118 @@
         </div>
       </div>
     </section>
+    <!-- ══ ANALIZADOR DE COBERTURA ══ -->
     <section class="vista" id="vista-cobertura">
-      <div class="vista-header"><div><h2 class="vista-header__titulo"><i class="ti ti-target"></i> Analizador de Cobertura</h2><p class="vista-header__sub">Analiza la cobertura ofensiva y defensiva de tu equipo</p></div></div>
-      <div class="proximamente"><i class="ti ti-target" style="font-size:48px;color:#0891b2;opacity:.5"></i><h3>En desarrollo</h3><p>El Analizador de Cobertura estará disponible próximamente.</p></div>
+      <div class="vista-header">
+        <div>
+          <h2 class="vista-header__titulo"><i class="ti ti-target"></i> Analizador de Cobertura</h2>
+          <p class="vista-header__sub">Cobertura ofensiva, defensiva y huecos del equipo actual</p>
+        </div>
+        <div class="vista-header__acciones">
+          <button class="btn-accion btn-accion--secundario" onclick="navegarA('equipo')">
+            <i class="ti ti-sword"></i> Editar equipo
+          </button>
+          <button class="btn-accion btn-accion--primario" onclick="renderizarCobertura()">
+            <i class="ti ti-refresh"></i> Actualizar
+          </button>
+        </div>
+      </div>
+
+      <div class="cob-sin-equipo" id="cobSinEquipo">
+        <i class="ti ti-target" style="font-size:48px;color:#0891b2;opacity:.4"></i>
+        <h3>Sin equipo configurado</h3>
+        <p>Ve al <strong>Constructor de Equipo</strong> y añade al menos un Pokémon para analizar la cobertura.</p>
+        <button class="btn-accion btn-accion--primario" onclick="navegarA('equipo')">
+          <i class="ti ti-sword"></i> Ir al Constructor
+        </button>
+      </div>
+
+      <div class="cob-contenido" id="cobContenido" style="display:none">
+
+        <div class="cob-equipo-strip" id="cobEquipoStrip"></div>
+
+        <div class="cob-grid">
+          <div class="cob-panel">
+            <div class="cob-panel__titulo">
+              <i class="ti ti-sword" style="color:#f97316"></i>
+              COBERTURA OFENSIVA (STAB)
+              <span class="cob-badge" id="cobStabScore"></span>
+            </div>
+            <p class="cob-panel__sub">Tipos que tu equipo puede golpear con STAB super efectivo</p>
+            <div class="cob-tipos-grid" id="cobStabGrid"></div>
+          </div>
+
+          <div class="cob-panel">
+            <div class="cob-panel__titulo">
+              <i class="ti ti-alert-triangle" style="color:#ef4444"></i>
+              HUECOS OFENSIVOS
+              <span class="cob-badge cob-badge--mal" id="cobHuecosScore"></span>
+            </div>
+            <p class="cob-panel__sub">Tipos que ningún Pokémon cubre con STAB super efectivo</p>
+            <div class="cob-tipos-grid" id="cobHuecosGrid"></div>
+          </div>
+
+          <div class="cob-panel">
+            <div class="cob-panel__titulo">
+              <i class="ti ti-shield-check" style="color:#22c55e"></i>
+              RESISTENCIAS DEL EQUIPO
+              <span class="cob-badge cob-badge--bien" id="cobResScore"></span>
+            </div>
+            <p class="cob-panel__sub">Tipos que al menos la mitad del equipo resiste o es inmune</p>
+            <div class="cob-tipos-grid" id="cobResGrid"></div>
+          </div>
+
+          <div class="cob-panel">
+            <div class="cob-panel__titulo">
+              <i class="ti ti-skull" style="color:#ef4444"></i>
+              VULNERABILIDADES COMUNES
+              <span class="cob-badge cob-badge--mal" id="cobVulnScore"></span>
+            </div>
+            <p class="cob-panel__sub">Tipos que golpean super efectivo a la mayoria del equipo</p>
+            <div class="cob-tipos-grid" id="cobVulnGrid"></div>
+          </div>
+        </div>
+
+        <div class="cob-panel cob-panel--full">
+          <div class="cob-panel__titulo">
+            <i class="ti ti-table" style="color:#22d3ee"></i>
+            MAPA COMPLETO DE COBERTURA OFENSIVA
+            <span style="font-size:9px;color:var(--texto-muted);margin-left:auto">Equipo vs los 18 tipos</span>
+          </div>
+          <p class="cob-panel__sub">Multiplicador de cada Pokémon atacando a cada tipo (con STAB)</p>
+          <div class="cob-mapa-scroll">
+            <table class="cob-mapa-tabla" id="cobMapaTabla"></table>
+          </div>
+        </div>
+
+        <!-- Puntuación global -->
+        <div class="cob-panel cob-panel--full cob-panel--scores">
+          <div class="cob-panel__titulo">
+            <i class="ti ti-trophy" style="color:#facc15"></i>
+            PUNTUACIÓN DEL EQUIPO
+          </div>
+          <div class="cob-scores-wrap" id="cobPuntuacion"></div>
+        </div>
+
+        <!-- Recomendaciones -->
+        <div class="cob-panel cob-panel--full">
+          <div class="cob-panel__titulo">
+            <i class="ti ti-bulb" style="color:#facc15"></i>
+            RECOMENDACIONES
+          </div>
+          <div class="cob-recomendaciones" id="cobRecomendaciones"></div>
+        </div>
+
+        <!-- Sinergia -->
+        <div class="cob-panel cob-panel--full">
+          <div class="cob-panel__titulo">
+            <i class="ti ti-arrows-shuffle" style="color:#a78bfa"></i>
+            SINERGIA DEL EQUIPO
+          </div>
+          <div class="cob-sinergia-grid" id="cobSinergiaGrid"></div>
+        </div>
+
+      </div>
     </section>
     <!-- ══ MATRIZ DE DEBILIDADES ══ -->
     <section class="vista" id="vista-matriz">
